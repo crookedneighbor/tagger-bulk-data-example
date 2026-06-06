@@ -452,9 +452,8 @@ for (const [ai, action] of bestiaryActions.entries()) {
         "<title>MTG Bestiary</title>",
         `<title>${pageTitle}</title>\n    <meta name="description" content="${pageDesc}" />\n    <meta property="og:title" content="${pageTitle}" />\n    <meta property="og:description" content="${pageDesc}" />\n    <meta property="og:type" content="website" />${ogImageTag}`,
       );
-    const dir = `dist/${action.s}/${animal.s}`;
-    mkdirSync(dir, { recursive: true });
-    writeFileSync(`${dir}/index.html`, pageHtml);
+    mkdirSync(`dist/${action.s}`, { recursive: true });
+    writeFileSync(`dist/${action.s}/${animal.s}.html`, pageHtml);
     comboCount++;
   }
 }
