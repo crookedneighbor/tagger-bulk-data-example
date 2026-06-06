@@ -14,7 +14,7 @@
   "author": "",
   "type": "module",
   "scripts": {
-    "predev": "npm run build &",
+    "predev": "npm run watch:debug &",
     "dev": "http-server -p 1234 dist/",
     "download": "node scripts/download-bulk-data.mjs",
     "build": "node scripts/build/index.mjs",
