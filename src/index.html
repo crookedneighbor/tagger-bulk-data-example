@@ -1,455 +1,546 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MTG Bestiary</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Frijole&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: system-ui, sans-serif;
-      background: #1a1a2e;
-      color: #e0e0e0;
-      min-height: 100vh;
-    }
-
-    header {
-      background: #16213e;
-      border-bottom: 2px solid #4a3728;
-      padding: 1.5rem 2rem;
-    }
-
-    header h1 {
-      font-family: 'Frijole', system-ui, sans-serif;
-      font-size: 6rem;
-      font-weight: 400;
-      letter-spacing: 0.05em;
-      color: #d4a843;
-    }
-
-    header p {
-      margin-top: 0.25rem;
-      color: #9a9a9a;
-      font-size: 0.9rem;
-    }
-
-    .controls {
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-      align-items: flex-end;
-      padding: 1.5rem 2rem;
-      background: #16213e;
-      border-bottom: 1px solid #2a2a4a;
-    }
-
-    .control-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-      flex: 1;
-      min-width: 200px;
-    }
-
-    .control-group label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #d4a843;
-      font-weight: 600;
-    }
-
-    select {
-      background: #0f3460;
-      color: #e0e0e0;
-      border: 1px solid #4a4a7a;
-      border-radius: 6px;
-      padding: 0.6rem 0.8rem;
-      font-size: 0.95rem;
-      cursor: pointer;
-      width: 100%;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23d4a843' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 0.8rem center;
-      padding-right: 2rem;
-    }
-
-    select:focus { outline: 2px solid #d4a843; outline-offset: 2px; }
-    select:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .btn-randomize {
-      background: #0f3460;
-      color: #d4a843;
-      border: 1px solid #4a4a7a;
-      border-radius: 6px;
-      padding: 0.6rem 1.1rem;
-      font-size: 0.95rem;
-      cursor: pointer;
-      white-space: nowrap;
-      align-self: flex-end;
-      transition: background 0.15s, border-color 0.15s;
-    }
-
-    .btn-randomize:hover { background: #1a4a7a; border-color: #d4a843; }
-    .btn-randomize:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .result-bar {
-      padding: 0.75rem 2rem;
-      font-size: 0.85rem;
-      color: #9a9a9a;
-      min-height: 2.5rem;
-      border-bottom: 1px solid #2a2a4a;
-    }
-
-    .result-bar strong { color: #d4a843; }
-
-    #results { background: #0a0a18; }
-
-    .placeholder {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 6rem 2rem;
-      color: #555;
-      font-size: 1.1rem;
-      gap: 0.75rem;
-    }
-
-    .placeholder .icon { font-size: 3rem; }
-
-    /* ── Slideshow ── */
-
-    .slide-hero {
-      position: relative;
-      height: 70vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      background: #0a0a18;
-    }
-
-    .slide-hero img {
-      position: absolute;
-      max-height: 100%;
-      max-width: 100%;
-      object-fit: contain;
-      display: block;
-      user-select: none;
-      /* transitions are applied inline per effect */
-    }
-
-    .slide-overlay {
-      position: absolute;
-      inset: auto 0 0;
-      padding: 3rem 1.5rem 1rem;
-      background: linear-gradient(transparent, rgba(0,0,0,0.82));
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 1rem;
-      pointer-events: none;
-    }
-
-    .slide-overlay a { pointer-events: auto; }
-
-    .slide-name {
-      display: block;
-      color: #fff;
-      font-size: 1.1rem;
-      font-weight: 600;
-      text-decoration: none;
-    }
-
-    .slide-name:hover { color: #d4a843; }
-
-    .slide-note {
-      display: block;
-      margin-top: 0.2rem;
-      font-size: 0.75rem;
-      color: #d4a843;
-      font-style: italic;
-    }
-
-    .slide-counter {
-      color: #aaa;
-      font-size: 0.85rem;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .slide-nav {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(0,0,0,0.35);
-      color: #fff;
-      border: none;
-      width: 3rem;
-      height: 5rem;
-      font-size: 1.8rem;
-      cursor: pointer;
-      opacity: 0;
-      transition: opacity 0.2s, background 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .slide-hero:hover .slide-nav,
-    .slide-nav:focus { opacity: 1; outline: none; }
-    .slide-nav:hover  { background: rgba(0,0,0,0.65); }
-    .slide-prev { left: 0;  border-radius: 0 4px 4px 0; }
-    .slide-next { right: 0; border-radius: 4px 0 0 4px; }
-
-    .slide-progress {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      height: 3px;
-      width: 0;
-      background: #d4a843;
-      pointer-events: none;
-    }
-
-    .loading {
-      color: #9a9a9a;
-      font-style: italic;
-      padding: 2rem;
-    }
-
-    .empty {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 4rem 2rem;
-      color: #666;
-      gap: 0.5rem;
-    }
-
-    .empty .icon { font-size: 2.5rem; }
-  </style>
-</head>
-<body>
-
-<header>
-  <h1>Bestiary</h1>
-  <p>Find Magic cards that feature a creature performing an action</p>
-</header>
-
-<div class="controls">
-  <div class="control-group">
-    <label for="action-select">Action</label>
-    <select id="action-select" disabled>
-      <option value="">Choose an action…</option>
-    </select>
-  </div>
-  <div class="control-group">
-    <label for="creature-select">Creature</label>
-    <select id="creature-select" disabled>
-      <option value="">Choose a creature…</option>
-    </select>
-  </div>
-  <button class="btn-randomize" id="btn-randomize" disabled>&#x1F3B2; Randomize</button>
-</div>
-
-<div class="result-bar" id="result-bar"></div>
-
-<div id="results">
-  <div class="placeholder">
-    <span class="icon">🐾</span>
-    <span>Select a creature and action to begin</span>
-  </div>
-</div>
-
-<script>
-  function esc(s) {
-    return String(s)
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  const creatureSel  = document.getElementById('creature-select');
-  const actionSel    = document.getElementById('action-select');
-  const resultBar    = document.getElementById('result-bar');
-  const resultsEl    = document.getElementById('results');
-  const randomizeBtn = document.getElementById('btn-randomize');
-  const h1           = document.querySelector('h1');
-
-  const toTitle = s => s.replace(/\b\w/g, c => c.toUpperCase());
-
-  let slideshowTimer = null;
-  function rAF2(fn) { requestAnimationFrame(() => requestAnimationFrame(fn)); }
-
-  function applyTransition(front, back) {
-    Object.assign(back.style,  { transition: 'none', opacity: '1', clipPath: 'inset(0 100% 0 0)', transform: '', filter: '' });
-    Object.assign(front.style, { filter: '' });
-    rAF2(() => {
-      back.style.transition  = 'clip-path 0.6s ease';
-      back.style.clipPath    = 'inset(0 0% 0 0)';
-      front.style.transition = 'opacity 0.6s ease, filter 0.6s ease';
-      front.style.opacity    = '0';
-      front.style.filter     = 'blur(14px)';
-    });
-  }
-
-  fetch('bestiary.json')
-    .then(r => r.json())
-    .then(({ animals, actions, cards }) => {
-      // Populate dropdowns
-      for (const [i, a] of animals.entries()) {
-        const opt = document.createElement('option');
-        opt.value = i;
-        opt.textContent = a.l;
-        creatureSel.appendChild(opt);
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MTG Bestiary</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Frijole&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
 
-      for (const [i, a] of actions.entries()) {
-        const opt = document.createElement('option');
-        opt.value = i;
-        opt.textContent = a.l;
-        actionSel.appendChild(opt);
+      html {
+        background: #1a1a2e;
       }
 
-      creatureSel.disabled  = false;
-      actionSel.disabled    = false;
-      randomizeBtn.disabled = false;
-
-      // Precompute Sets for fast overlap checks.
-      const animalOidSets = animals.map(a => new Set(Object.keys(a.c)));
-      const actionOidSets = actions.map(a => new Set(a.tags.flatMap(t => t.oids)));
-
-      // Slug helpers and lookup maps for URL routing.
-      // BASE is derived from <base href> (combo pages) or the page URL (home).
-      const BASE = new URL(document.baseURI).pathname;
-      const slugify = s => s.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-      const actionBySlug = new Map(actions.map((a, i) => [slugify(a.l), i]));
-      const animalBySlug = new Map(animals.map((a, i) => [slugify(a.l), i]));
-
-      function setsOverlap(a, b) {
-        const [small, large] = a.size <= b.size ? [a, b] : [b, a];
-        for (const x of small) if (large.has(x)) return true;
-        return false;
+      body {
+        font-family: system-ui, sans-serif;
+        background: #1a1a2e;
+        color: #e0e0e0;
+        min-height: 100vh;
+        max-width: 960px;
+        margin: 0 auto;
       }
 
-      function updateActionDisabled(ci) {
-        const animalSet = ci !== '' ? animalOidSets[Number(ci)] : null;
-        for (const opt of actionSel.options) {
-          if (!opt.value) continue;
-          opt.disabled = animalSet !== null && !setsOverlap(animalSet, actionOidSets[Number(opt.value)]);
-        }
-        if (actionSel.selectedOptions[0]?.disabled) actionSel.value = '';
+      header {
+        background: #16213e;
+        border-bottom: 2px solid #4a3728;
+        padding: 1.25rem 1.5rem;
       }
 
-      function updateCreatureDisabled(ai) {
-        const actionSet = ai !== '' ? actionOidSets[Number(ai)] : null;
-        for (const opt of creatureSel.options) {
-          if (!opt.value) continue;
-          opt.disabled = actionSet !== null && !setsOverlap(animalOidSets[Number(opt.value)], actionSet);
-        }
-        if (creatureSel.selectedOptions[0]?.disabled) creatureSel.value = '';
+      header h1 {
+        font-family: "Frijole", system-ui, sans-serif;
+        font-size: 6rem;
+        font-weight: 400;
+        letter-spacing: 0.05em;
+        color: #d4a843;
       }
 
-      // Update the URL path from current dropdown values without triggering popstate.
-      function updatePath() {
-        const ai = actionSel.value;
-        const ci = creatureSel.value;
-        const newPath = ai !== '' && ci !== ''
-          ? BASE + slugify(actions[Number(ai)].l) + '/' + slugify(animals[Number(ci)].l)
-          : BASE;
-        if (location.pathname !== newPath) history.pushState(null, '', newPath);
+      header p {
+        margin-top: 0.25rem;
+        color: #9a9a9a;
+        font-size: 0.9rem;
       }
 
-      // Parse the current path and apply it to the dropdowns.
-      function applyPath() {
-        const parts = location.pathname.slice(BASE.length).split('/').filter(Boolean);
-        const ai = actionBySlug.get(parts[0]);
-        const ci = animalBySlug.get(parts[1]);
-        if (ai !== undefined && ci !== undefined) {
-          actionSel.value   = ai;
-          creatureSel.value = ci;
-          updateCreatureDisabled(String(ai));
-          updateActionDisabled(String(ci));
-        } else {
-          actionSel.value   = '';
-          creatureSel.value = '';
-        }
-        render();
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        align-items: end;
+        gap: 0.35rem 1rem;
+        padding: 1rem 1.5rem;
+        background: #16213e;
+        border-bottom: 1px solid #2a2a4a;
       }
 
-      const SLIDE_INTERVAL = 4000;
+      .control-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
 
-      function render() {
-        clearInterval(slideshowTimer);
-        slideshowTimer = null;
+      .control-group label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #d4a843;
+        font-weight: 600;
+      }
 
-        const ci = creatureSel.value;
-        const ai = actionSel.value;
+      select {
+        background: #0f3460;
+        color: #e0e0e0;
+        border: 1px solid #4a4a7a;
+        border-radius: 6px;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.95rem;
+        cursor: pointer;
+        width: 100%;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23d4a843' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.8rem center;
+        padding-right: 2rem;
+      }
 
-        if (ci === '' || ai === '') {
-          h1.textContent = 'Bestiary';
-          document.title = 'MTG Bestiary';
-          resultBar.innerHTML = '';
-          resultsEl.innerHTML = `
+      select:focus {
+        outline: 2px solid #d4a843;
+        outline-offset: 2px;
+      }
+      select:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .btn-randomize {
+        background: #0f3460;
+        color: #d4a843;
+        border: 1px solid #4a4a7a;
+        border-radius: 6px;
+        padding: 0.6rem 1rem;
+        font-size: 0.95rem;
+        cursor: pointer;
+        white-space: nowrap;
+        transition:
+          background 0.15s,
+          border-color 0.15s;
+      }
+
+      .btn-randomize:hover {
+        background: #1a4a7a;
+        border-color: #d4a843;
+      }
+      .btn-randomize:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .result-bar {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.85rem;
+        color: #9a9a9a;
+        min-height: 2.5rem;
+        border-bottom: 1px solid #2a2a4a;
+      }
+
+      .result-bar strong {
+        color: #d4a843;
+      }
+
+      #results {
+        background: #0a0a18;
+      }
+
+      .placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 6rem 2rem;
+        color: #555;
+        font-size: 1.1rem;
+        gap: 0.75rem;
+      }
+
+      .placeholder .icon {
+        font-size: 3rem;
+      }
+
+      /* ── Slideshow ── */
+
+      .slide-hero {
+        position: relative;
+        height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: #0a0a18;
+      }
+
+      .slide-hero img {
+        position: absolute;
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+        display: block;
+        user-select: none;
+        /* transitions are applied inline per effect */
+      }
+
+      .slide-overlay {
+        position: absolute;
+        inset: auto 0 0;
+        padding: 3rem 1.5rem 1rem;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.82));
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 1rem;
+        pointer-events: none;
+      }
+
+      .slide-overlay a {
+        pointer-events: auto;
+      }
+
+      .slide-name {
+        display: block;
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .slide-name:hover {
+        color: #d4a843;
+      }
+
+      .slide-note {
+        display: block;
+        margin-top: 0.2rem;
+        font-size: 0.75rem;
+        color: #d4a843;
+        font-style: italic;
+      }
+
+      .slide-counter {
+        color: #aaa;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      .slide-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.35);
+        color: #fff;
+        border: none;
+        width: 3rem;
+        height: 5rem;
+        font-size: 1.8rem;
+        cursor: pointer;
+        opacity: 0;
+        transition:
+          opacity 0.2s,
+          background 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .slide-hero:hover .slide-nav,
+      .slide-nav:focus {
+        opacity: 1;
+        outline: none;
+      }
+      .slide-nav:hover {
+        background: rgba(0, 0, 0, 0.65);
+      }
+      .slide-prev {
+        left: 0;
+        border-radius: 0 4px 4px 0;
+      }
+      .slide-next {
+        right: 0;
+        border-radius: 4px 0 0 4px;
+      }
+
+      .slide-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        width: 0;
+        background: #d4a843;
+        pointer-events: none;
+      }
+
+      .loading {
+        color: #9a9a9a;
+        font-style: italic;
+        padding: 2rem;
+      }
+
+      .empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 4rem 2rem;
+        color: #666;
+        gap: 0.5rem;
+      }
+
+      .empty .icon {
+        font-size: 2.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Bestiary</h1>
+      <p>Find Magic cards that feature a creature performing an action</p>
+    </header>
+
+    <div class="controls">
+      <div class="control-group">
+        <label for="action-select">Action</label>
+        <select id="action-select" disabled>
+          <option value="">Choose an action…</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label for="creature-select">Creature</label>
+        <select id="creature-select" disabled>
+          <option value="">Choose a creature…</option>
+        </select>
+      </div>
+      <button class="btn-randomize" id="btn-randomize" disabled>
+        Randomize
+      </button>
+    </div>
+
+    <div class="result-bar" id="result-bar"></div>
+
+    <div id="results">
+      <div class="placeholder">
+        <span class="icon">🐾</span>
+        <span>Select a creature and action to begin</span>
+      </div>
+    </div>
+
+    <script>
+      function esc(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      const creatureSel = document.getElementById("creature-select");
+      const actionSel = document.getElementById("action-select");
+      const resultBar = document.getElementById("result-bar");
+      const resultsEl = document.getElementById("results");
+      const randomizeBtn = document.getElementById("btn-randomize");
+      const h1 = document.querySelector("h1");
+
+      const toTitle = (s) => s.replace(/\b\w/g, (c) => c.toUpperCase());
+
+      let slideshowTimer = null;
+      function rAF2(fn) {
+        requestAnimationFrame(() => requestAnimationFrame(fn));
+      }
+
+      function applyTransition(front, back) {
+        Object.assign(back.style, {
+          transition: "none",
+          opacity: "1",
+          clipPath: "inset(0 100% 0 0)",
+          transform: "",
+          filter: "",
+        });
+        Object.assign(front.style, { filter: "" });
+        rAF2(() => {
+          back.style.transition = "clip-path 0.6s ease";
+          back.style.clipPath = "inset(0 0% 0 0)";
+          front.style.transition = "opacity 0.6s ease, filter 0.6s ease";
+          front.style.opacity = "0";
+          front.style.filter = "blur(14px)";
+        });
+      }
+
+      fetch("bestiary.json")
+        .then((r) => r.json())
+        .then(({ animals, actions, cards }) => {
+          // Populate dropdowns
+          for (const [i, a] of animals.entries()) {
+            const opt = document.createElement("option");
+            opt.value = i;
+            opt.textContent = a.l;
+            creatureSel.appendChild(opt);
+          }
+
+          for (const [i, a] of actions.entries()) {
+            const opt = document.createElement("option");
+            opt.value = i;
+            opt.textContent = a.l;
+            actionSel.appendChild(opt);
+          }
+
+          creatureSel.disabled = false;
+          actionSel.disabled = false;
+          randomizeBtn.disabled = false;
+
+          // Precompute Sets for fast overlap checks.
+          const animalOidSets = animals.map((a) => new Set(Object.keys(a.c)));
+          const actionOidSets = actions.map(
+            (a) => new Set(a.tags.flatMap((t) => t.oids)),
+          );
+
+          // Slug helpers and lookup maps for URL routing.
+          // BASE is derived from <base href> (combo pages) or the page URL (home).
+          const BASE = new URL(document.baseURI).pathname;
+          const slugify = (s) =>
+            s
+              .toLowerCase()
+              .replace(/\s+/g, "-")
+              .replace(/[^a-z0-9-]/g, "");
+          const actionBySlug = new Map(
+            actions.map((a, i) => [slugify(a.l), i]),
+          );
+          const animalBySlug = new Map(
+            animals.map((a, i) => [slugify(a.l), i]),
+          );
+
+          function setsOverlap(a, b) {
+            const [small, large] = a.size <= b.size ? [a, b] : [b, a];
+            for (const x of small) if (large.has(x)) return true;
+            return false;
+          }
+
+          function updateActionDisabled(ci) {
+            const animalSet = ci !== "" ? animalOidSets[Number(ci)] : null;
+            for (const opt of actionSel.options) {
+              if (!opt.value) continue;
+              opt.disabled =
+                animalSet !== null &&
+                !setsOverlap(animalSet, actionOidSets[Number(opt.value)]);
+            }
+            if (actionSel.selectedOptions[0]?.disabled) actionSel.value = "";
+          }
+
+          function updateCreatureDisabled(ai) {
+            const actionSet = ai !== "" ? actionOidSets[Number(ai)] : null;
+            for (const opt of creatureSel.options) {
+              if (!opt.value) continue;
+              opt.disabled =
+                actionSet !== null &&
+                !setsOverlap(animalOidSets[Number(opt.value)], actionSet);
+            }
+            if (creatureSel.selectedOptions[0]?.disabled)
+              creatureSel.value = "";
+          }
+
+          // Update the URL path from current dropdown values without triggering popstate.
+          function updatePath() {
+            const ai = actionSel.value;
+            const ci = creatureSel.value;
+            const newPath =
+              ai !== "" && ci !== ""
+                ? BASE +
+                  slugify(actions[Number(ai)].l) +
+                  "/" +
+                  slugify(animals[Number(ci)].l)
+                : BASE;
+            if (location.pathname !== newPath)
+              history.pushState(null, "", newPath);
+          }
+
+          // Parse the current path and apply it to the dropdowns.
+          function applyPath() {
+            const parts = location.pathname
+              .slice(BASE.length)
+              .split("/")
+              .filter(Boolean);
+            const ai = actionBySlug.get(parts[0]);
+            const ci = animalBySlug.get(parts[1]);
+            if (ai !== undefined && ci !== undefined) {
+              actionSel.value = ai;
+              creatureSel.value = ci;
+              updateCreatureDisabled(String(ai));
+              updateActionDisabled(String(ci));
+            } else {
+              actionSel.value = "";
+              creatureSel.value = "";
+            }
+            render();
+          }
+
+          const SLIDE_INTERVAL = 4000;
+
+          function render() {
+            clearInterval(slideshowTimer);
+            slideshowTimer = null;
+
+            const ci = creatureSel.value;
+            const ai = actionSel.value;
+
+            if (ci === "" || ai === "") {
+              h1.textContent = "Bestiary";
+              document.title = "MTG Bestiary";
+              resultBar.innerHTML = "";
+              resultsEl.innerHTML = `
             <div class="placeholder">
               <span class="icon">🐾</span>
               <span>Select a creature and action to begin</span>
             </div>`;
-          return;
-        }
+              return;
+            }
 
-        const animal = animals[Number(ci)];
-        const action = actions[Number(ai)];
-        const label  = toTitle(action.l) + ' ' + toTitle(animal.l);
-        h1.textContent = label;
-        document.title = label + ' — MTG Bestiary';
+            const animal = animals[Number(ci)];
+            const action = actions[Number(ai)];
+            const label = toTitle(action.l) + " " + toTitle(animal.l);
+            h1.textContent = label;
+            document.title = label + " — MTG Bestiary";
 
-        const actionOids = new Set(action.tags.flatMap(t => t.oids));
+            const actionOids = new Set(action.tags.flatMap((t) => t.oids));
 
-        const oidLabels = {};
-        for (const t of action.tags) {
-          for (const oid of t.oids) {
-            if (!oidLabels[oid]) oidLabels[oid] = [];
-            oidLabels[oid].push(t.label);
-          }
-        }
+            const oidLabels = {};
+            for (const t of action.tags) {
+              for (const oid of t.oids) {
+                if (!oidLabels[oid]) oidLabels[oid] = [];
+                oidLabels[oid].push(t.label);
+              }
+            }
 
-        const results = [];
-        for (const [oid, items] of Object.entries(animal.c)) {
-          if (!actionOids.has(oid)) continue;
-          const card = cards[oid];
-          if (!card) continue;
-          const note = (oidLabels[oid] ?? []).join(', ');
-          for (const item of items) {
-            results.push({ oid, artUrl: item.a, name: card.n, scryfall: item.s, note });
-          }
-        }
+            const results = [];
+            for (const [oid, items] of Object.entries(animal.c)) {
+              if (!actionOids.has(oid)) continue;
+              const card = cards[oid];
+              if (!card) continue;
+              const note = (oidLabels[oid] ?? []).join(", ");
+              for (const item of items) {
+                results.push({
+                  oid,
+                  artUrl: item.a,
+                  name: card.n,
+                  scryfall: item.s,
+                  note,
+                });
+              }
+            }
 
-        const count = results.length;
-        if (count === 0) {
-          resultBar.innerHTML = '';
-          resultsEl.innerHTML = `
+            const count = results.length;
+            if (count === 0) {
+              resultBar.innerHTML = "";
+              resultsEl.innerHTML = `
             <div class="empty">
               <span class="icon">🔍</span>
               <span>No cards found with <strong>${esc(animal.l)}</strong> in the art that also have <strong>${esc(action.l)}</strong></span>
             </div>`;
-          return;
-        }
+              return;
+            }
 
-        resultBar.innerHTML =
-          `<strong>${count}</strong> card${count !== 1 ? 's' : ''} ` +
-          `with <strong>${esc(animal.l)}</strong> in the art that also have <strong>${esc(action.l)}</strong>`;
+            resultBar.innerHTML =
+              `<strong>${count}</strong> card${count !== 1 ? "s" : ""} ` +
+              `with <strong>${esc(animal.l)}</strong> in the art that also have <strong>${esc(action.l)}</strong>`;
 
-        // Build slideshow
-        const hero     = document.createElement('div');
-        hero.className = 'slide-hero';
-        hero.innerHTML = `
+            // Build slideshow
+            const hero = document.createElement("div");
+            hero.className = "slide-hero";
+            hero.innerHTML = `
           <img class="img-a" src="" alt="" draggable="false" style="opacity:0">
           <img class="img-b" src="" alt="" draggable="false" style="opacity:0">
           <div class="slide-overlay">
@@ -459,125 +550,154 @@
             </div>
             <span class="slide-counter"></span>
           </div>
-          ${count > 1 ? `
+          ${
+            count > 1
+              ? `
           <button class="slide-nav slide-prev" aria-label="Previous">&#x2039;</button>
           <button class="slide-nav slide-next" aria-label="Next">&#x203A;</button>
-          ` : ''}
+          `
+              : ""
+          }
           <div class="slide-progress"></div>`;
 
-        const imgA       = hero.querySelector('.img-a');
-        const imgB       = hero.querySelector('.img-b');
-        const nameEl     = hero.querySelector('.slide-name');
-        const noteEl     = hero.querySelector('.slide-note');
-        const counterEl  = hero.querySelector('.slide-counter');
-        const progressEl = hero.querySelector('.slide-progress');
-        const prevBtn    = hero.querySelector('.slide-prev');
-        const nextBtn    = hero.querySelector('.slide-next');
+            const imgA = hero.querySelector(".img-a");
+            const imgB = hero.querySelector(".img-b");
+            const nameEl = hero.querySelector(".slide-name");
+            const noteEl = hero.querySelector(".slide-note");
+            const counterEl = hero.querySelector(".slide-counter");
+            const progressEl = hero.querySelector(".slide-progress");
+            const prevBtn = hero.querySelector(".slide-prev");
+            const nextBtn = hero.querySelector(".slide-next");
 
-        let idx      = 0;
-        let paused   = false;
-        let frontImg = imgA;
-        let backImg  = imgB;
+            let idx = 0;
+            let paused = false;
+            let frontImg = imgA;
+            let backImg = imgB;
 
-        function animateProgress() {
-          progressEl.style.transition = 'none';
-          progressEl.style.width = '0';
-          requestAnimationFrame(() => requestAnimationFrame(() => {
-            progressEl.style.transition = `width ${SLIDE_INTERVAL}ms linear`;
-            progressEl.style.width = '100%';
-          }));
-        }
+            function animateProgress() {
+              progressEl.style.transition = "none";
+              progressEl.style.width = "0";
+              requestAnimationFrame(() =>
+                requestAnimationFrame(() => {
+                  progressEl.style.transition = `width ${SLIDE_INTERVAL}ms linear`;
+                  progressEl.style.width = "100%";
+                }),
+              );
+            }
 
-        function showSlide(i, instant = false, dir = 1) {
-          idx = ((i % count) + count) % count;
-          const r = results[idx];
+            function showSlide(i, instant = false, dir = 1) {
+              idx = ((i % count) + count) % count;
+              const r = results[idx];
 
-          nameEl.href           = r.scryfall;
-          nameEl.textContent    = r.name;
-          noteEl.textContent    = r.note;
-          noteEl.hidden         = !r.note;
-          counterEl.textContent = count > 1 ? `${idx + 1} / ${count}` : '';
+              nameEl.href = r.scryfall;
+              nameEl.textContent = r.name;
+              noteEl.textContent = r.note;
+              noteEl.hidden = !r.note;
+              counterEl.textContent = count > 1 ? `${idx + 1} / ${count}` : "";
 
-          if (instant) {
-            Object.assign(frontImg.style, { transition: 'none', opacity: '1', transform: '', filter: '', clipPath: '' });
-            Object.assign(backImg.style,  { transition: 'none', opacity: '0', transform: '', filter: '', clipPath: '' });
-            frontImg.src = r.artUrl;
-            frontImg.alt = r.name;
-          } else {
-            backImg.src         = r.artUrl;
-            backImg.alt         = r.name;
-            backImg.style.zIndex  = '2';
-            frontImg.style.zIndex = '1';
-            applyTransition(frontImg, backImg);
-            [frontImg, backImg] = [backImg, frontImg];
+              if (instant) {
+                Object.assign(frontImg.style, {
+                  transition: "none",
+                  opacity: "1",
+                  transform: "",
+                  filter: "",
+                  clipPath: "",
+                });
+                Object.assign(backImg.style, {
+                  transition: "none",
+                  opacity: "0",
+                  transform: "",
+                  filter: "",
+                  clipPath: "",
+                });
+                frontImg.src = r.artUrl;
+                frontImg.alt = r.name;
+              } else {
+                backImg.src = r.artUrl;
+                backImg.alt = r.name;
+                backImg.style.zIndex = "2";
+                frontImg.style.zIndex = "1";
+                applyTransition(frontImg, backImg);
+                [frontImg, backImg] = [backImg, frontImg];
+              }
+
+              if (count > 1) animateProgress();
+            }
+
+            function startTimer() {
+              clearInterval(slideshowTimer);
+              slideshowTimer = setInterval(() => {
+                if (!paused) showSlide(idx + 1, false, 1);
+              }, SLIDE_INTERVAL);
+            }
+
+            if (count > 1) {
+              hero.addEventListener("mouseenter", () => {
+                paused = true;
+                progressEl.style.transition = "none";
+                progressEl.style.width =
+                  (progressEl.getBoundingClientRect().width /
+                    hero.getBoundingClientRect().width) *
+                    100 +
+                  "%";
+              });
+              hero.addEventListener("mouseleave", () => {
+                paused = false;
+                showSlide(idx, false, 1);
+                startTimer();
+              });
+              prevBtn.addEventListener("click", () => {
+                showSlide(idx - 1, false, -1);
+                startTimer();
+              });
+              nextBtn.addEventListener("click", () => {
+                showSlide(idx + 1, false, 1);
+                startTimer();
+              });
+              startTimer();
+            }
+
+            showSlide(0, true);
+            resultsEl.innerHTML = "";
+            resultsEl.appendChild(hero);
           }
 
-          if (count > 1) animateProgress();
-        }
+          function randomize() {
+            const ai = Math.floor(Math.random() * actions.length);
+            const actionSet = actionOidSets[ai];
+            const valid = animals
+              .map((_, i) => i)
+              .filter((i) => setsOverlap(animalOidSets[i], actionSet));
+            const ci = valid[Math.floor(Math.random() * valid.length)];
+            actionSel.value = ai;
+            creatureSel.value = ci;
+            updateCreatureDisabled(String(ai));
+            updateActionDisabled(String(ci));
+            updatePath();
+            render();
+          }
 
-        function startTimer() {
-          clearInterval(slideshowTimer);
-          slideshowTimer = setInterval(() => {
-            if (!paused) showSlide(idx + 1, false, 1);
-          }, SLIDE_INTERVAL);
-        }
-
-        if (count > 1) {
-          hero.addEventListener('mouseenter', () => {
-            paused = true;
-            progressEl.style.transition = 'none';
-            progressEl.style.width = progressEl.getBoundingClientRect().width /
-              hero.getBoundingClientRect().width * 100 + '%';
+          creatureSel.addEventListener("change", () => {
+            updateActionDisabled(creatureSel.value);
+            updatePath();
+            render();
           });
-          hero.addEventListener('mouseleave', () => {
-            paused = false;
-            showSlide(idx, false, 1);
-            startTimer();
+          actionSel.addEventListener("change", () => {
+            updateCreatureDisabled(actionSel.value);
+            updatePath();
+            render();
           });
-          prevBtn.addEventListener('click', () => { showSlide(idx - 1, false, -1); startTimer(); });
-          nextBtn.addEventListener('click', () => { showSlide(idx + 1, false,  1); startTimer(); });
-          startTimer();
-        }
+          randomizeBtn.addEventListener("click", randomize);
 
-        showSlide(0, true);
-        resultsEl.innerHTML = '';
-        resultsEl.appendChild(hero);
-      }
+          // Browser back/forward navigation.
+          window.addEventListener("popstate", applyPath);
 
-      function randomize() {
-        const ai = Math.floor(Math.random() * actions.length);
-        const actionSet = actionOidSets[ai];
-        const valid = animals.map((_, i) => i).filter(i => setsOverlap(animalOidSets[i], actionSet));
-        const ci = valid[Math.floor(Math.random() * valid.length)];
-        actionSel.value   = ai;
-        creatureSel.value = ci;
-        updateCreatureDisabled(String(ai));
-        updateActionDisabled(String(ci));
-        updatePath();
-        render();
-      }
-
-      creatureSel.addEventListener('change', () => {
-        updateActionDisabled(creatureSel.value);
-        updatePath();
-        render();
-      });
-      actionSel.addEventListener('change', () => {
-        updateCreatureDisabled(actionSel.value);
-        updatePath();
-        render();
-      });
-      randomizeBtn.addEventListener('click', randomize);
-
-      // Browser back/forward navigation.
-      window.addEventListener('popstate', applyPath);
-
-      // Initial load — apply any path already in the URL.
-      applyPath();
-    })
-    .catch(err => {
-      resultsEl.innerHTML = `<p class="loading">Failed to load data: ${esc(err.message)}</p>`;
-    });
-</script>
-</body>
+          // Initial load — apply any path already in the URL.
+          applyPath();
+        })
+        .catch((err) => {
+          resultsEl.innerHTML = `<p class="loading">Failed to load data: ${esc(err.message)}</p>`;
+        });
+    </script>
+  </body>
 </html>
