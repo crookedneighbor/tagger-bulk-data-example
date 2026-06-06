@@ -16,7 +16,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "http-server -p 1234 dist/",
-    "download": "node download-bulk-data.mjs",
+    "download": "node scripts/download-bulk-data.mjs",
     "build": "node scripts/build/index.mjs"
   },
   "devDependencies": {
