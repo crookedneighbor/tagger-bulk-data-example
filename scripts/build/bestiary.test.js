@@ -81,6 +81,59 @@ describe("buildBestiary", () => {
     });
   });
 
+  it("skips illustrations with a weak tagging weight", () => {
+    const artWithWeak = [
+      {
+        id: "animal-root",
+        label: "animal",
+        uri: "",
+        child_ids: ["wolf-id"],
+        taggings: [],
+      },
+      {
+        id: "character-root",
+        label: "character",
+        uri: "",
+        child_ids: [],
+        taggings: [],
+      },
+      {
+        id: "wolf-id",
+        label: "wolf",
+        uri: "",
+        child_ids: [],
+        taggings: [
+          { illustration_id: "ill-strong" },
+          { illustration_id: "ill-weak", weight: "weak" },
+        ],
+      },
+    ];
+    const indexesWithWeak = {
+      ...indexes,
+      cardByOracleId: new Map([
+        ["oid-1", { name: "Wolves' Pride", uri: "https://scryfall.com/1" }],
+        ["oid-weak", { name: "Weak Wolf", uri: "https://scryfall.com/2" }],
+      ]),
+      cardImgByIllustrationId: new Map([
+        ["ill-strong", "https://img/strong.jpg"],
+        ["ill-weak", "https://img/weak.jpg"],
+      ]),
+      scryfallByIllustrationId: new Map([
+        ["ill-strong", "https://scryfall.com/card/1"],
+        ["ill-weak", "https://scryfall.com/card/2"],
+      ]),
+      illToOracle: new Map([
+        ["ill-strong", "oid-1"],
+        ["ill-weak", "oid-weak"],
+      ]),
+    };
+    const result = buildBestiary(artWithWeak, oracleTagsRaw, indexesWithWeak);
+    const wolf = result.animals[0];
+
+    expect(Object.keys(wolf.c)).toContain("oid-1");
+    expect(Object.keys(wolf.c)).not.toContain("oid-weak");
+  });
+
   it("expands EXPAND_ANIMAL_IDS tags into their children instead of the parent", () => {
     // reptile (da814be7) is in EXPAND_ANIMAL_IDS
     const artWithReptile = [
