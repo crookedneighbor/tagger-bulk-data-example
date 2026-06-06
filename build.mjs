@@ -422,7 +422,7 @@ const toTitle = (s) => s.replace(/\b\w/g, (c) => c.toUpperCase());
 const homeHtml = readFileSync("src/index.html", "utf8");
 const comboBase = homeHtml.replace(
   /(<head[^>]*>)/i,
-  '$1\n  <base href="../../">',
+  '$1\n  <base href="../">',
 );
 const actionOidSetsList = bestiaryActions.map(
   (a) => new Set(a.tags.flatMap((t) => t.oids)),
