@@ -63,9 +63,9 @@ fetch("bestiary.json")
       document.title = label + " — MTG Bestiary";
 
       const actionOids = new Set(action.tags.flatMap((t) => t.oids));
-      const actionTagLinks = action.tags.map(
-        (t) => `<a href="${esc(t.uri)}" target="_blank" rel="noopener noreferrer">${esc(t.label)}</a>`,
-      );
+      const toLink = (t) =>
+        `<a href="${esc(t.uri)}" target="_blank" rel="noopener noreferrer">${esc(t.label)}</a>`;
+      const actionTagLinks = action.tags.flatMap((t) => [t, ...(t.children ?? [])].map(toLink));
       const actionTagLabels =
         actionTagLinks.length <= 2
           ? actionTagLinks.join(" or ")

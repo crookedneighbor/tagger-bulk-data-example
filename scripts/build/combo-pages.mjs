@@ -22,7 +22,7 @@ export function buildComboPages({ animals, actions, cards }, template) {
 
       const label = toTitle(action.l) + " " + toTitle(animal.l);
       const pageTitle = `${label} — MTG Bestiary`;
-      const actionTagLabels = action.tags.map((t) => t.label);
+      const actionTagLabels = action.tags.flatMap((t) => [t, ...(t.children ?? [])].map((c) => c.label));
       const actionTagList =
         actionTagLabels.length <= 2
           ? actionTagLabels.join(" or ")
