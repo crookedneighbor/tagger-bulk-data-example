@@ -1,7 +1,9 @@
-import { esc, toTitle, slugify } from "./utils.js";
+import { esc, toTitle } from "./utils.js";
 import { popH1 } from "./h1.js";
 import { updateBackground, HOME_BG } from "./background.js";
 import { buildSlideshow } from "./slideshow.js";
+import { setsOverlap, createDropdowns } from "./dropdowns.js";
+import { createRouter } from "./router.js";
 
 const creatureSel = document.getElementById("creature-select");
 const actionSel = document.getElementById("action-select");
@@ -12,74 +14,8 @@ const randomizeBtn = document.getElementById("btn-randomize");
 fetch("bestiary.json")
   .then((r) => r.json())
   .then(({ animals, actions, cards }) => {
-    for (const [i, a] of animals.entries()) {
-      const opt = document.createElement("option");
-      opt.value = i;
-      opt.textContent = a.l;
-      creatureSel.appendChild(opt);
-    }
-
-    for (const [i, a] of actions.entries()) {
-      const opt = document.createElement("option");
-      opt.value = i;
-      opt.textContent = a.l;
-      actionSel.appendChild(opt);
-    }
-
-    creatureSel.disabled = false;
-    actionSel.disabled = false;
-    randomizeBtn.disabled = false;
-
-    const animalOidSets = animals.map((a) => new Set(Object.keys(a.c)));
-    const actionOidSets = actions.map(
-      (a) => new Set(a.tags.flatMap((t) => t.oids)),
-    );
-
-    const BASE = new URL(document.baseURI).pathname;
-    const actionBySlug = new Map(actions.map((a, i) => [slugify(a.l), i]));
-    const animalBySlug = new Map(animals.map((a, i) => [slugify(a.l), i]));
-
-    function setsOverlap(a, b) {
-      const [small, large] = a.size <= b.size ? [a, b] : [b, a];
-      for (const x of small) if (large.has(x)) return true;
-      return false;
-    }
-
-    function updateActionDisabled(ci) {
-      const animalSet = ci !== "" ? animalOidSets[Number(ci)] : null;
-      for (const opt of actionSel.options) {
-        if (!opt.value) continue;
-        opt.disabled =
-          animalSet !== null &&
-          !setsOverlap(animalSet, actionOidSets[Number(opt.value)]);
-      }
-      if (actionSel.selectedOptions[0]?.disabled) actionSel.value = "";
-    }
-
-    function updateCreatureDisabled(ai) {
-      const actionSet = ai !== "" ? actionOidSets[Number(ai)] : null;
-      for (const opt of creatureSel.options) {
-        if (!opt.value) continue;
-        opt.disabled =
-          actionSet !== null &&
-          !setsOverlap(animalOidSets[Number(opt.value)], actionSet);
-      }
-      if (creatureSel.selectedOptions[0]?.disabled) creatureSel.value = "";
-    }
-
-    function updatePath() {
-      const ai = actionSel.value;
-      const ci = creatureSel.value;
-      const newPath =
-        ai !== "" && ci !== ""
-          ? BASE +
-            slugify(actions[Number(ai)].l) +
-            "/" +
-            slugify(animals[Number(ci)].l)
-          : BASE;
-      if (location.pathname !== newPath)
-        history.pushState(null, "", newPath);
-    }
+    const { animalOidSets, actionOidSets, updateActionDisabled, updateCreatureDisabled } =
+      createDropdowns({ animals, actions, creatureSel, actionSel, randomizeBtn });
 
     let currentSlideshow = null;
 
@@ -152,24 +88,17 @@ fetch("bestiary.json")
       resultsEl.replaceChildren(currentSlideshow.element);
     }
 
-    function applyPath() {
-      const parts = location.pathname
-        .slice(BASE.length)
-        .split("/")
-        .filter(Boolean);
-      const ai = actionBySlug.get(parts[0]);
-      const ci = animalBySlug.get(parts[1]);
-      if (ai !== undefined && ci !== undefined) {
-        actionSel.value = ai;
-        creatureSel.value = ci;
-        updateCreatureDisabled(String(ai));
-        updateActionDisabled(String(ci));
-      } else {
-        actionSel.value = "";
-        creatureSel.value = "";
-      }
-      render();
-    }
+    const { updatePath, applyPath } = createRouter({
+      actions,
+      animals,
+      actionSel,
+      creatureSel,
+      onNavigate() {
+        if (actionSel.value) updateCreatureDisabled(actionSel.value);
+        if (creatureSel.value) updateActionDisabled(creatureSel.value);
+        render();
+      },
+    });
 
     function randomize() {
       const ai = Math.floor(Math.random() * actions.length);
@@ -198,7 +127,6 @@ fetch("bestiary.json")
     });
     randomizeBtn.addEventListener("click", randomize);
 
-    window.addEventListener("popstate", applyPath);
     applyPath();
   })
   .catch((err) => {
