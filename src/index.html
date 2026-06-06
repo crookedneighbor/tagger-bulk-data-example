@@ -74,6 +74,16 @@
         letter-spacing: 0.05em;
         color: #d4a843;
         transform-origin: center center;
+        line-height: 1.15;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      header h1 > span {
+        display: block;
+        width: 100%;
         text-align: center;
       }
 
@@ -354,7 +364,7 @@
   <body>
     <header>
       <h1>Bestiary</h1>
-      <p>Find Magic cards that feature a creature performing an action</p>
+      <p>An example app for utilizing the Tagger bulk data files.</p>
     </header>
 
     <div class="controls">
@@ -400,9 +410,28 @@
       const randomizeBtn = document.getElementById("btn-randomize");
       const h1 = document.querySelector("h1");
 
+      function fitH1() {
+        h1.style.fontSize = "";
+        const cs = window.getComputedStyle(h1);
+        const lineH = parseFloat(cs.lineHeight);
+        const targetH = Math.round(lineH * 2);
+        h1.style.height = targetH + "px";
+        let fs = parseFloat(cs.fontSize);
+        while (h1.scrollHeight > targetH && fs > 16) {
+          fs -= 0.5;
+          h1.style.fontSize = fs + "px";
+        }
+      }
+
+      fitH1();
+      window.addEventListener("resize", fitH1);
+
       let h1Ready = false;
       function popH1(text) {
-        h1.textContent = text;
+        const span = document.createElement("span");
+        span.textContent = text;
+        h1.replaceChildren(span);
+        fitH1();
         if (h1Ready) {
           h1.classList.remove("pop");
           void h1.offsetWidth;
