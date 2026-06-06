@@ -40,7 +40,7 @@
 
       header h1 {
         font-family: "Frijole", system-ui, sans-serif;
-        font-size: 6rem;
+        font-size: clamp(2.5rem, 10vw, 6rem);
         font-weight: 400;
         letter-spacing: 0.05em;
         color: #d4a843;
@@ -643,7 +643,7 @@
               });
               hero.addEventListener("mouseleave", () => {
                 paused = false;
-                showSlide(idx, false, 1);
+                animateProgress();
                 startTimer();
               });
               prevBtn.addEventListener("click", () => {
