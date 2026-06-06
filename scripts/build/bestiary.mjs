@@ -61,7 +61,7 @@ export function buildBestiary(
       const tag = oracleTagById.get(id);
       if (!tag) return [];
       const oids = tag.taggings.map((tg) => tg.oracle_id);
-      return oids.length ? [{ label: tag.label, oids }] : [];
+      return oids.length ? [{ label: tag.label, uri: tag.uri, oids }] : [];
     });
     if (tags.length === 0) continue;
     tags.forEach(({ oids }) => oids.forEach((oid) => allActionOids.add(oid)));
