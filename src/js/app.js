@@ -14,8 +14,18 @@ const randomizeBtn = document.getElementById("btn-randomize");
 fetch("bestiary.json")
   .then((r) => r.json())
   .then(({ animals, actions, cards }) => {
-    const { animalOidSets, actionOidSets, updateActionDisabled, updateCreatureDisabled } =
-      createDropdowns({ animals, actions, creatureSel, actionSel, randomizeBtn });
+    const {
+      animalOidSets,
+      actionOidSets,
+      updateActionDisabled,
+      updateCreatureDisabled,
+    } = createDropdowns({
+      animals,
+      actions,
+      creatureSel,
+      actionSel,
+      randomizeBtn,
+    });
 
     let currentSlideshow = null;
 
@@ -65,7 +75,14 @@ fetch("bestiary.json")
         if (!card) continue;
         const note = (oidLabels[oid] ?? []).join(", ");
         for (const item of items) {
-          results.push({ oid, artUrl: item.a, bg: item.bg, name: card.n, scryfall: item.s, note });
+          results.push({
+            oid,
+            artUrl: item.a,
+            bg: item.bg,
+            name: card.n,
+            scryfall: item.s,
+            note,
+          });
         }
       }
 

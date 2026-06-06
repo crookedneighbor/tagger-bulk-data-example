@@ -1,6 +1,12 @@
 import { slugify } from "./utils.js";
 
-export function createRouter({ actions, animals, actionSel, creatureSel, onNavigate }) {
+export function createRouter({
+  actions,
+  animals,
+  actionSel,
+  creatureSel,
+  onNavigate,
+}) {
   const BASE = new URL(document.baseURI).pathname;
   const actionBySlug = new Map(actions.map((a, i) => [slugify(a.l), i]));
   const animalBySlug = new Map(animals.map((a, i) => [slugify(a.l), i]));
@@ -15,8 +21,7 @@ export function createRouter({ actions, animals, actionSel, creatureSel, onNavig
           "/" +
           slugify(animals[Number(ci)].l)
         : BASE;
-    if (location.pathname !== newPath)
-      history.pushState(null, "", newPath);
+    if (location.pathname !== newPath) history.pushState(null, "", newPath);
   }
 
   function applyPath() {

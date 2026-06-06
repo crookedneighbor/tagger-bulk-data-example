@@ -1,4 +1,11 @@
-import { readFileSync, writeFileSync, mkdirSync, rmSync, readdirSync, copyFileSync } from "fs";
+import {
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  rmSync,
+  readdirSync,
+  copyFileSync,
+} from "fs";
 import { loadData } from "./load-data.mjs";
 import { buildIndexes } from "./build-indexes.mjs";
 import { buildArtTags } from "./art-tags.mjs";

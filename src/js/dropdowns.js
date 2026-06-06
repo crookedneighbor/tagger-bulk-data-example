@@ -4,7 +4,13 @@ export function setsOverlap(a, b) {
   return false;
 }
 
-export function createDropdowns({ animals, actions, creatureSel, actionSel, randomizeBtn }) {
+export function createDropdowns({
+  animals,
+  actions,
+  creatureSel,
+  actionSel,
+  randomizeBtn,
+}) {
   for (const [i, a] of animals.entries()) {
     const opt = document.createElement("option");
     opt.value = i;
@@ -50,5 +56,10 @@ export function createDropdowns({ animals, actions, creatureSel, actionSel, rand
     if (creatureSel.selectedOptions[0]?.disabled) creatureSel.value = "";
   }
 
-  return { animalOidSets, actionOidSets, updateActionDisabled, updateCreatureDisabled };
+  return {
+    animalOidSets,
+    actionOidSets,
+    updateActionDisabled,
+    updateCreatureDisabled,
+  };
 }

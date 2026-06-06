@@ -36,7 +36,13 @@ function bfsIds(startIds, tagById) {
 export function buildBestiary(
   artTagsRaw,
   oracleTagsRaw,
-  { cardByOracleId, artByIllustrationId, cardImgByIllustrationId, scryfallByIllustrationId, illToOracle },
+  {
+    cardByOracleId,
+    artByIllustrationId,
+    cardImgByIllustrationId,
+    scryfallByIllustrationId,
+    illToOracle,
+  },
 ) {
   const artTagById = new Map(artTagsRaw.map((t) => [t.id, t]));
   const oracleTagById = new Map(oracleTagsRaw.map((t) => [t.id, t]));
@@ -114,5 +120,9 @@ export function buildBestiary(
     if (card) bestiaryCards[oid] = { n: card.name, s: card.uri };
   }
 
-  return { animals: bestiaryAnimals, actions: bestiaryActions, cards: bestiaryCards };
+  return {
+    animals: bestiaryAnimals,
+    actions: bestiaryActions,
+    cards: bestiaryCards,
+  };
 }

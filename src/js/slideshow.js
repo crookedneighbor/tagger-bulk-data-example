@@ -14,10 +14,14 @@ export function buildSlideshow(results) {
     <div class="slide-overlay">
       <span class="slide-counter"></span>
     </div>
-    ${count > 1 ? `
+    ${
+      count > 1
+        ? `
     <button class="slide-nav slide-prev" aria-label="Previous">&#x2039;</button>
     <button class="slide-nav slide-next" aria-label="Next">&#x203A;</button>
-    ` : ""}
+    `
+        : ""
+    }
     <div class="slide-progress"></div>`;
 
   const imgA = hero.querySelector(".img-a");

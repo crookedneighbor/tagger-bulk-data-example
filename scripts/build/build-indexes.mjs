@@ -1,6 +1,9 @@
 export function buildIndexes({ oracleCardsRaw, uniqueArtwork }) {
   const cardByOracleId = new Map(
-    oracleCardsRaw.map((c) => [c.oracle_id, { name: c.name, uri: c.scryfall_uri }]),
+    oracleCardsRaw.map((c) => [
+      c.oracle_id,
+      { name: c.name, uri: c.scryfall_uri },
+    ]),
   );
 
   const artByIllustrationId = new Map();

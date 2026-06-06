@@ -4,8 +4,13 @@ const toTitle = (s) => s.replace(/\b\w/g, (c) => c.toUpperCase());
 const escAttr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 
 export function buildComboPages({ animals, actions, cards }, template) {
-  const comboBase = template.replace(/(<head[^>]*>)/i, '$1\n  <base href="../">');
-  const actionOidSets = actions.map((a) => new Set(a.tags.flatMap((t) => t.oids)));
+  const comboBase = template.replace(
+    /(<head[^>]*>)/i,
+    '$1\n  <base href="../">',
+  );
+  const actionOidSets = actions.map(
+    (a) => new Set(a.tags.flatMap((t) => t.oids)),
+  );
 
   let comboCount = 0;
   for (const [ai, action] of actions.entries()) {
