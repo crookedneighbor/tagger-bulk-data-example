@@ -28,9 +28,9 @@ for (const card of uniqueArtwork) {
   const artCrop =
     card.image_uris?.art_crop ?? card.card_faces?.[0]?.image_uris?.art_crop;
   const cardImg =
-    card.image_uris?.png     ?? card.card_faces?.[0]?.image_uris?.png ??
+    card.image_uris?.normal  ?? card.card_faces?.[0]?.image_uris?.normal ??
     card.image_uris?.large   ?? card.card_faces?.[0]?.image_uris?.large ??
-    card.image_uris?.normal  ?? card.card_faces?.[0]?.image_uris?.normal;
+    card.image_uris?.png     ?? card.card_faces?.[0]?.image_uris?.png;
   if (artCrop)  artByIllustrationId.set(card.illustration_id, artCrop);
   if (cardImg)  cardImgByIllustrationId.set(card.illustration_id, cardImg);
   if (card.scryfall_uri) scryfallByIllustrationId.set(card.illustration_id, card.scryfall_uri);
