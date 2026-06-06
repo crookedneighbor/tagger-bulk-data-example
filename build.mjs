@@ -326,6 +326,8 @@ const OMIT_ANIMAL_IDS = new Set([
   "16c0b648-c78b-4d16-b476-3f08196d1966", // non-fantasy animal
   "bf1aa5f5-a353-4f1d-a4b5-e59becf38f16", // scale animal
   "a89c01dc-f857-4ef2-a90a-af8f55ed5fc5", // undead animal
+  "1f766f5b-93b8-4939-ad53-4722bb8d425e", // metal animal
+  "2c306ad8-b142-4722-a88f-c73340690124", // cyborg animal
 ]);
 
 // Build bestiary entries for each direct child of "animal".
