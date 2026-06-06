@@ -83,12 +83,17 @@ export const ACTION_GROUPS = [
     ],
   },
   {
+    l: "enraged",
+    ids: [
+      // enrage
+      "a37a14b4-32e4-4680-8892-8a0e9687fe49",
+    ],
+  },
+  {
     l: "ferocious",
     ids: [
       // ferocious
       "f21a7a5b-6c7f-4aaa-aeaa-b06660647074",
-      // enrage
-      "a37a14b4-32e4-4680-8892-8a0e9687fe49",
     ],
   },
   {
