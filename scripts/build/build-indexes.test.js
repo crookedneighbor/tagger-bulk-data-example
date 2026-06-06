@@ -71,6 +71,20 @@ describe("buildIndexes", () => {
     expect(result.illToOracle.size).toBe(0);
   });
 
+  it("skips cards from sets in SKIP_SETS (e.g. dbl)", () => {
+    const result = buildIndexes({
+      oracleCardsRaw: [],
+      uniqueArtwork: [
+        makeCard("oid-dbl", "Some Card", "ill-dbl", {
+          art_crop: "https://img/dbl-art.jpg",
+          normal: "https://img/dbl-normal.jpg",
+        }),
+      ].map((c) => ({ ...c, set: "dbl" })),
+    });
+    expect(result.illToOracle.size).toBe(0);
+    expect(result.artByIllustrationId.size).toBe(0);
+  });
+
   it("falls back to card_faces image when top-level image_uris is absent", () => {
     const artwork = [
       {
