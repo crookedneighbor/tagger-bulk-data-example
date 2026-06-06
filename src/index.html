@@ -73,6 +73,27 @@
         font-weight: 400;
         letter-spacing: 0.05em;
         color: #d4a843;
+        transform-origin: center center;
+        text-align: center;
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        @keyframes h1-pop {
+          0% {
+            transform: scale(0.88);
+            opacity: 0.3;
+          }
+          65% {
+            transform: scale(1.04);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+        header h1.pop {
+          animation: h1-pop 0.3s ease-out both;
+        }
       }
 
       header p {
@@ -379,6 +400,18 @@
       const randomizeBtn = document.getElementById("btn-randomize");
       const h1 = document.querySelector("h1");
 
+      let h1Ready = false;
+      function popH1(text) {
+        h1.textContent = text;
+        if (h1Ready) {
+          h1.classList.remove("pop");
+          void h1.offsetWidth;
+          h1.classList.add("pop");
+        } else {
+          h1Ready = true;
+        }
+      }
+
       const toTitle = (s) => s.replace(/\b\w/g, (c) => c.toUpperCase());
 
       let slideshowTimer = null;
@@ -560,7 +593,7 @@
             const ai = actionSel.value;
 
             if (ci === "" || ai === "") {
-              h1.textContent = "Bestiary";
+              popH1("Bestiary");
               document.title = "MTG Bestiary";
               resultBar.innerHTML = "";
               resultsEl.innerHTML = `
@@ -574,7 +607,7 @@
             const animal = animals[Number(ci)];
             const action = actions[Number(ai)];
             const label = toTitle(action.l) + " " + toTitle(animal.l);
-            h1.textContent = label;
+            popH1(label);
             document.title = label + " — MTG Bestiary";
 
             const actionOids = new Set(action.tags.flatMap((t) => t.oids));
