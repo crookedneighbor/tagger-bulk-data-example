@@ -136,11 +136,13 @@
     }
 
     .slide-hero img {
+      position: absolute;
       max-height: 100%;
       max-width: 100%;
       object-fit: contain;
       display: block;
       user-select: none;
+      /* transitions are applied inline per effect */
     }
 
     .slide-overlay {
@@ -283,6 +285,19 @@
   const toTitle = s => s.replace(/\b\w/g, c => c.toUpperCase());
 
   let slideshowTimer = null;
+  function rAF2(fn) { requestAnimationFrame(() => requestAnimationFrame(fn)); }
+
+  function applyTransition(front, back) {
+    Object.assign(back.style,  { transition: 'none', opacity: '1', clipPath: 'inset(0 100% 0 0)', transform: '', filter: '' });
+    Object.assign(front.style, { filter: '' });
+    rAF2(() => {
+      back.style.transition  = 'clip-path 0.6s ease';
+      back.style.clipPath    = 'inset(0 0% 0 0)';
+      front.style.transition = 'opacity 0.6s ease, filter 0.6s ease';
+      front.style.opacity    = '0';
+      front.style.filter     = 'blur(14px)';
+    });
+  }
 
   fetch('bestiary.json')
     .then(r => r.json())
@@ -435,7 +450,8 @@
         const hero     = document.createElement('div');
         hero.className = 'slide-hero';
         hero.innerHTML = `
-          <img src="" alt="" draggable="false">
+          <img class="img-a" src="" alt="" draggable="false" style="opacity:0">
+          <img class="img-b" src="" alt="" draggable="false" style="opacity:0">
           <div class="slide-overlay">
             <div class="slide-card-info">
               <a class="slide-name" href="" target="_blank" rel="noopener"></a>
@@ -449,7 +465,8 @@
           ` : ''}
           <div class="slide-progress"></div>`;
 
-        const img        = hero.querySelector('img');
+        const imgA       = hero.querySelector('.img-a');
+        const imgB       = hero.querySelector('.img-b');
         const nameEl     = hero.querySelector('.slide-name');
         const noteEl     = hero.querySelector('.slide-note');
         const counterEl  = hero.querySelector('.slide-counter');
@@ -457,8 +474,10 @@
         const prevBtn    = hero.querySelector('.slide-prev');
         const nextBtn    = hero.querySelector('.slide-next');
 
-        let idx     = 0;
-        let paused  = false;
+        let idx      = 0;
+        let paused   = false;
+        let frontImg = imgA;
+        let backImg  = imgB;
 
         function animateProgress() {
           progressEl.style.transition = 'none';
@@ -469,23 +488,37 @@
           }));
         }
 
-        function showSlide(i) {
+        function showSlide(i, instant = false, dir = 1) {
           idx = ((i % count) + count) % count;
           const r = results[idx];
-          img.src          = r.artUrl;
-          img.alt          = r.name;
-          nameEl.href      = r.scryfall;
-          nameEl.textContent = r.name;
-          noteEl.textContent = r.note;
-          noteEl.hidden    = !r.note;
+
+          nameEl.href           = r.scryfall;
+          nameEl.textContent    = r.name;
+          noteEl.textContent    = r.note;
+          noteEl.hidden         = !r.note;
           counterEl.textContent = count > 1 ? `${idx + 1} / ${count}` : '';
+
+          if (instant) {
+            Object.assign(frontImg.style, { transition: 'none', opacity: '1', transform: '', filter: '', clipPath: '' });
+            Object.assign(backImg.style,  { transition: 'none', opacity: '0', transform: '', filter: '', clipPath: '' });
+            frontImg.src = r.artUrl;
+            frontImg.alt = r.name;
+          } else {
+            backImg.src         = r.artUrl;
+            backImg.alt         = r.name;
+            backImg.style.zIndex  = '2';
+            frontImg.style.zIndex = '1';
+            applyTransition(frontImg, backImg);
+            [frontImg, backImg] = [backImg, frontImg];
+          }
+
           if (count > 1) animateProgress();
         }
 
         function startTimer() {
           clearInterval(slideshowTimer);
           slideshowTimer = setInterval(() => {
-            if (!paused) showSlide(idx + 1);
+            if (!paused) showSlide(idx + 1, false, 1);
           }, SLIDE_INTERVAL);
         }
 
@@ -498,15 +531,15 @@
           });
           hero.addEventListener('mouseleave', () => {
             paused = false;
-            showSlide(idx);
+            showSlide(idx, false, 1);
             startTimer();
           });
-          prevBtn.addEventListener('click', () => { showSlide(idx - 1); startTimer(); });
-          nextBtn.addEventListener('click', () => { showSlide(idx + 1); startTimer(); });
+          prevBtn.addEventListener('click', () => { showSlide(idx - 1, false, -1); startTimer(); });
+          nextBtn.addEventListener('click', () => { showSlide(idx + 1, false,  1); startTimer(); });
           startTimer();
         }
 
-        showSlide(0);
+        showSlide(0, true);
         resultsEl.innerHTML = '';
         resultsEl.appendChild(hero);
       }
