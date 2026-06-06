@@ -1,19 +1,22 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeAll } from "vitest";
-
-// h1.js queries document at module-eval time, so set up the DOM first
-// via dynamic import after the DOM is ready.
-let fitH1, popH1;
+import { fitH1, popH1, resetReadyState } from "./h1.js";
+import { afterEach } from "node:test";
 
 beforeAll(async () => {
   document.body.innerHTML = "<header><h1></h1></header>";
-  ({ fitH1, popH1 } = await import("./h1.js"));
+});
+
+afterEach(() => {
+  resetReadyState();
 });
 
 describe("fitH1", () => {
   it("runs without throwing", () => {
     expect(() => fitH1()).not.toThrow();
   });
+
+  // TODO fill in actual tests
 });
 
 describe("popH1", () => {
@@ -34,4 +37,6 @@ describe("popH1", () => {
     popH1("Second");
     expect(document.querySelector("h1").textContent).toBe("Second");
   });
+
+  // TODO fill in more tests
 });

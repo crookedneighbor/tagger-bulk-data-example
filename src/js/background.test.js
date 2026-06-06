@@ -1,12 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from "vitest";
-import { updateBackground, HOME_BG } from "./background.js";
-
-describe("HOME_BG", () => {
-  it("is a Scryfall art_crop URL", () => {
-    expect(HOME_BG).toMatch(/scryfall\.io/);
-  });
-});
+import { updateBackground } from "./background.js";
 
 describe("updateBackground", () => {
   it("sets the back layer URL and makes it visible", () => {

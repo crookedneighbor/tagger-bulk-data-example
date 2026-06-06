@@ -2,6 +2,16 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { setsOverlap, createDropdowns } from "./dropdowns.js";
 
+const makeAnimal = (label, oids) => ({
+  l: label,
+  c: Object.fromEntries(oids.map((oid) => [oid, []])),
+});
+
+const makeAction = (label, oids) => ({
+  l: label,
+  tags: [{ label, oids }],
+});
+
 describe("setsOverlap", () => {
   it("returns true when sets share an element", () => {
     expect(setsOverlap(new Set(["a", "b"]), new Set(["b", "c"]))).toBe(true);
@@ -15,19 +25,9 @@ describe("setsOverlap", () => {
     expect(setsOverlap(new Set(), new Set())).toBe(false);
   });
 
-  it("works when the smaller set is second", () => {
+  it("returns true when the smaller set is second", () => {
     expect(setsOverlap(new Set(["a", "b", "c"]), new Set(["c"]))).toBe(true);
   });
-});
-
-const makeAnimal = (label, oids) => ({
-  l: label,
-  c: Object.fromEntries(oids.map((oid) => [oid, []])),
-});
-
-const makeAction = (label, oids) => ({
-  l: label,
-  tags: [{ label, oids }],
 });
 
 describe("createDropdowns", () => {
@@ -56,6 +56,7 @@ describe("createDropdowns", () => {
       actionSel,
       randomizeBtn,
     });
+
     expect(creatureSel.options).toHaveLength(2);
     expect(creatureSel.options[0].textContent).toBe("wolf");
     expect(creatureSel.options[1].textContent).toBe("bear");
@@ -73,6 +74,7 @@ describe("createDropdowns", () => {
       actionSel,
       randomizeBtn,
     });
+
     expect(actionSel.options).toHaveLength(2);
     expect(actionSel.options[0].textContent).toBe("eating");
   });
@@ -85,6 +87,7 @@ describe("createDropdowns", () => {
       actionSel,
       randomizeBtn,
     });
+
     expect(creatureSel.disabled).toBe(false);
     expect(actionSel.disabled).toBe(false);
     expect(randomizeBtn.disabled).toBe(false);
@@ -104,6 +107,7 @@ describe("createDropdowns", () => {
       randomizeBtn,
     });
     updateActionDisabled("0"); // wolf selected (index 0)
+
     expect(actionSel.options[0].disabled).toBe(false); // eating overlaps
     expect(actionSel.options[1].disabled).toBe(true); // flying does not
   });
@@ -122,6 +126,7 @@ describe("createDropdowns", () => {
       randomizeBtn,
     });
     updateCreatureDisabled("0"); // eating selected (index 0)
+
     expect(creatureSel.options[0].disabled).toBe(false); // wolf overlaps
     expect(creatureSel.options[1].disabled).toBe(true); // bird does not
   });
