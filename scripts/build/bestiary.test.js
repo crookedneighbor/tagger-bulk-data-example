@@ -1,10 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
+import { buildBestiary } from "./bestiary.mjs";
 
 vi.mock("./action-groups.mjs", () => ({
   ACTION_GROUPS: [{ l: "eating", ids: ["action-tag-id"] }],
 }));
-
-const { buildBestiary } = await import("./bestiary.mjs");
 
 const artTagsRaw = [
   {
@@ -50,31 +49,31 @@ const indexes = {
 };
 
 describe("buildBestiary", () => {
-  const result = buildBestiary(artTagsRaw, oracleTagsRaw, indexes);
+  it("includes the child animals, but not characters or parent animal tag", () => {
+    const result = buildBestiary(artTagsRaw, oracleTagsRaw, indexes);
 
-  it("returns animals, actions, and cards", () => {
-    expect(result).toHaveProperty("animals");
-    expect(result).toHaveProperty("actions");
-    expect(result).toHaveProperty("cards");
-  });
-
-  it("includes the wolf animal", () => {
     expect(result.animals).toHaveLength(1);
     expect(result.animals[0].l).toBe("wolf");
   });
 
-  it("includes the eating action group", () => {
+  it("includes the oracle tags within their group", () => {
+    const result = buildBestiary(artTagsRaw, oracleTagsRaw, indexes);
+
     expect(result.actions).toHaveLength(1);
     expect(result.actions[0].l).toBe("eating");
   });
 
-  it("associates the card with the wolf", () => {
+  it("associates the illustration ids with their corresponding art tags", () => {
+    const result = buildBestiary(artTagsRaw, oracleTagsRaw, indexes);
     const wolf = result.animals[0];
+
     expect(wolf.c["oid-1"]).toBeDefined();
     expect(wolf.c["oid-1"][0].a).toBe("https://img/normal.jpg");
   });
 
   it("populates the cards lookup", () => {
+    const result = buildBestiary(artTagsRaw, oracleTagsRaw, indexes);
+
     expect(result.cards["oid-1"]).toEqual({
       n: "Wolves' Pride",
       s: "https://scryfall.com/1",
@@ -94,11 +93,11 @@ describe("buildBestiary", () => {
       { ...artTagsRaw[0], child_ids: ["wolf-id", "bear-id"] },
     ];
     // bear has no card overlapping with eating action
-    const r = buildBestiary(noOverlapTags, oracleTagsRaw, {
+    const result = buildBestiary(noOverlapTags, oracleTagsRaw, {
       ...indexes,
       illToOracle: new Map([["ill-1", "oid-1"]]), // ill-bear not in map
     });
-    expect(r.animals.find((a) => a.l === "bear")).toBeUndefined();
+    expect(result.animals.find((a) => a.l === "bear")).toBeUndefined();
   });
 
   it("sorts animals alphabetically", () => {
@@ -109,6 +108,13 @@ describe("buildBestiary", () => {
         uri: "",
         child_ids: ["zebra-id", "wolf-id"],
         taggings: [],
+      },
+      {
+        id: "zebra-id",
+        label: "zebra",
+        uri: "",
+        child_ids: [],
+        taggings: [{ illustration_id: "ill-1" }],
       },
       {
         id: "character-root",
@@ -124,16 +130,10 @@ describe("buildBestiary", () => {
         child_ids: [],
         taggings: [{ illustration_id: "ill-1" }],
       },
-      {
-        id: "zebra-id",
-        label: "zebra",
-        uri: "",
-        child_ids: [],
-        taggings: [{ illustration_id: "ill-1" }],
-      },
     ];
-    const r = buildBestiary(artWithTwo, oracleTagsRaw, indexes);
-    expect(r.animals[0].l).toBe("wolf");
-    expect(r.animals[1].l).toBe("zebra");
+    const result = buildBestiary(artWithTwo, oracleTagsRaw, indexes);
+
+    expect(result.animals[0].l).toBe("wolf");
+    expect(result.animals[1].l).toBe("zebra");
   });
 });

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
+import { loadData } from "./load-data.mjs";
 
 const mockData = {
   oracle_cards: [{ oracle_id: "oid-1", name: "Test Card" }],
@@ -19,8 +20,6 @@ vi.mock("fs", () => ({
     throw new Error(`Unexpected path: ${path}`);
   }),
 }));
-
-const { loadData } = await import("./load-data.mjs");
 
 describe("loadData", () => {
   it("returns oracleCardsRaw", () => {

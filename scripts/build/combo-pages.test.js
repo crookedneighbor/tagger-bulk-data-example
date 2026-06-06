@@ -1,12 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { buildComboPages } from "./combo-pages.mjs";
+import { writeFileSync, mkdirSync } from "fs";
 
 vi.mock("fs", () => ({
   writeFileSync: vi.fn(),
   mkdirSync: vi.fn(),
 }));
-
-const { buildComboPages } = await import("./combo-pages.mjs");
-const { writeFileSync, mkdirSync } = await import("fs");
 
 const TEMPLATE = `<!doctype html>
 <html lang="en" data-state="home">
