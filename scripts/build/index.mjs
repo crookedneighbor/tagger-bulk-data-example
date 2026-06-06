@@ -34,6 +34,9 @@ const template = readFileSync("src/index.html", "utf8");
 console.log("Writing dist/index.html…");
 writeFileSync("dist/index.html", template);
 
+console.log("Writing dist/app.js…");
+writeFileSync("dist/app.js", readFileSync("src/app.js"));
+
 for (const [name, payload] of [
   ["art-tags.json", artTags],
   ["oracle-tags.json", oracleTags],
