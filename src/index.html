@@ -428,11 +428,12 @@
 
       let h1Ready = false;
       function popH1(text) {
+        const changed = h1.textContent !== text;
         const span = document.createElement("span");
         span.textContent = text;
         h1.replaceChildren(span);
         fitH1();
-        if (h1Ready) {
+        if (h1Ready && changed) {
           h1.classList.remove("pop");
           void h1.offsetWidth;
           h1.classList.add("pop");
@@ -623,7 +624,10 @@
             clearInterval(slideshowTimer);
             slideshowTimer = null;
             if (visibilityHandler) {
-              document.removeEventListener("visibilitychange", visibilityHandler);
+              document.removeEventListener(
+                "visibilitychange",
+                visibilityHandler,
+              );
               visibilityHandler = null;
             }
 
@@ -682,14 +686,14 @@
               resultsEl.innerHTML = `
             <div class="empty">
               <span class="icon">🔍</span>
-              <span>No cards found with <strong>${esc(animal.l)}</strong> in the art that also have <strong>${esc(action.l)}</strong></span>
+              <span>No cards found with <strong>${esc(animal.l)}</strong> in the art that are also tagged <strong>${esc(action.l)}</strong></span>
             </div>`;
               return;
             }
 
             resultBar.innerHTML =
               `<strong>${count}</strong> card${count !== 1 ? "s" : ""} ` +
-              `with <strong>${esc(animal.l)}</strong> in the art that also have <strong>${esc(action.l)}</strong>`;
+              `with <strong>${esc(animal.l)}</strong> in the art that are also tagged <strong>${esc(action.l)}</strong>`;
 
             // Build slideshow
             const hero = document.createElement("div");
