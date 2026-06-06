@@ -15,8 +15,9 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "dev": "http-server -p 1234 app/",
-    "download": "node download-bulk-data.mjs"
+    "dev": "http-server -p 1234 dist/",
+    "download": "node download-bulk-data.mjs",
+    "build": "node build.mjs"
   },
   "devDependencies": {
     "http-server": "^14.1.1"

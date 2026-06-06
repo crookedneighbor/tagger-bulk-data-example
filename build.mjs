@@ -64,27 +64,27 @@ console.log(
     `oracle tags: ${oracleTags.length.toLocaleString()}`,
 );
 
-mkdirSync("app", { recursive: true });
+mkdirSync("dist", { recursive: true });
 
-console.log("Writing app/art-tags.json…");
-writeFileSync("app/art-tags.json", JSON.stringify(artTags));
+console.log("Writing dist/art-tags.json…");
+writeFileSync("dist/art-tags.json", JSON.stringify(artTags));
 
-console.log("Writing app/oracle-tags.json…");
-writeFileSync("app/oracle-tags.json", JSON.stringify(oracleTags));
+console.log("Writing dist/oracle-tags.json…");
+writeFileSync("dist/oracle-tags.json", JSON.stringify(oracleTags));
 
-console.log("Writing app/index.html…");
+console.log("Writing dist/index.html…");
 const template = readFileSync("src/index.html", "utf8");
-writeFileSync("app/index.html", template);
+writeFileSync("dist/index.html", template);
 
 for (const [name, data] of [
   ["art-tags.json", artTags],
   ["oracle-tags.json", oracleTags],
 ]) {
   const bytes = Buffer.byteLength(JSON.stringify(data));
-  console.log(`  app/${name}: ${(bytes / 1_048_576).toFixed(1)} MB`);
+  console.log(`  dist/${name}: ${(bytes / 1_048_576).toFixed(1)} MB`);
 }
-const htmlBytes = Buffer.byteLength(readFileSync("app/index.html"));
-console.log(`  app/index.html: ${(htmlBytes / 1024).toFixed(1)} KB`);
+const htmlBytes = Buffer.byteLength(readFileSync("dist/index.html"));
+console.log(`  dist/index.html: ${(htmlBytes / 1024).toFixed(1)} KB`);
 // ── Bestiary ─────────────────────────────────────────────────────────────────
 
 console.log("Building bestiary.json…");
@@ -103,7 +103,7 @@ while (bfsQueue.length) {
 }
 
 // Collect all descendants of the "character" tag so we can exclude named
-// characters that happen to also be animals (e.g. Ilharg, Yorion, Keruga).
+// characters that hdisten to also be animals (e.g. Ilharg, Yorion, Keruga).
 const characterRoot = artTagsRaw.find((t) => t.label === "character");
 const characterIds = new Set();
 const charQueue = [...characterRoot.child_ids];
@@ -298,7 +298,7 @@ for (const oid of allActionOids) {
 }
 
 writeFileSync(
-  "app/bestiary.json",
+  "dist/bestiary.json",
   JSON.stringify({
     animals: bestiaryAnimals,
     actions: bestiaryActions,
