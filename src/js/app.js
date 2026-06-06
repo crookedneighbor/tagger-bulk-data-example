@@ -63,6 +63,9 @@ fetch("bestiary.json")
       document.title = label + " — MTG Bestiary";
 
       const actionOids = new Set(action.tags.flatMap((t) => t.oids));
+      const actionTagLabels = action.tags
+        .map((t) => `<a href="${esc(t.uri)}" target="_blank" rel="noopener noreferrer">${esc(t.label)}</a>`)
+        .join(", ");
       const oidLabels = {};
       for (const t of action.tags) {
         for (const oid of t.oids) {
@@ -95,14 +98,14 @@ fetch("bestiary.json")
         resultsEl.innerHTML = `
           <div class="empty">
             <span class="icon">🔍</span>
-            <span>No cards found with <strong>${esc(animal.l)}</strong> in the art that are also tagged <strong>${esc(action.l)}</strong></span>
+            <span>No cards found with <strong><a href="${esc(animal.u)}" target="_blank" rel="noopener noreferrer">${esc(animal.l)}</a></strong> in the art that are also tagged <strong>${actionTagLabels}</strong></span>
           </div>`;
         return;
       }
 
       resultBar.innerHTML =
         `<strong>${count}</strong> card${count !== 1 ? "s" : ""} ` +
-        `with <strong>${esc(animal.l)}</strong> in the art that are also tagged <strong>${esc(action.l)}</strong>`;
+        `with <strong><a href="${esc(animal.u)}" target="_blank" rel="noopener noreferrer">${esc(animal.l)}</a></strong> in the art that are also tagged <strong>${actionTagLabels}</strong>`;
 
       currentSlideshow = buildSlideshow(results);
       resultsEl.replaceChildren(currentSlideshow.element);
