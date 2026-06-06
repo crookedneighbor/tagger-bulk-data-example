@@ -60,8 +60,21 @@ export function buildBestiary(
     const tags = group.ids.flatMap((id) => {
       const tag = oracleTagById.get(id);
       if (!tag) return [];
-      const oids = tag.taggings.map((tg) => tg.oracle_id);
-      return oids.length ? [{ label: tag.label, uri: tag.uri, oids }] : [];
+      const subtreeIds = bfsIds([id], oracleTagById);
+      const oids = [
+        ...new Set(
+          [...subtreeIds].flatMap((sid) =>
+            (oracleTagById.get(sid)?.taggings ?? []).map((tg) => tg.oracle_id),
+          ),
+        ),
+      ];
+      const children = [...subtreeIds]
+        .filter((sid) => sid !== id)
+        .flatMap((sid) => {
+          const ct = oracleTagById.get(sid);
+          return ct ? [{ label: ct.label, uri: ct.uri }] : [];
+        });
+      return oids.length ? [{ label: tag.label, uri: tag.uri, oids, children }] : [];
     });
     if (tags.length === 0) continue;
     tags.forEach(({ oids }) => oids.forEach((oid) => allActionOids.add(oid)));

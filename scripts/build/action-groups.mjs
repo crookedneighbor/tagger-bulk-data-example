@@ -6,6 +6,8 @@ export const ACTION_GROUPS = [
       "b4efa2f1-c578-41ea-a43f-2e29648b2bce",
       // ingest
       "0ffe5ff7-b9e2-46e3-864e-25bc1b20ef61",
+      // gives ingest
+      "21418f94-c40a-4d3b-832e-3f89c7804dee",
     ],
   },
   {
@@ -18,8 +20,8 @@ export const ACTION_GROUPS = [
   {
     l: "poisonous",
     ids: [
-      // poisonous
-      "c5517762-1510-43b7-af3c-4616e3c802ca",
+      // poisonous mechanics
+      "4a498561-a13c-4c55-ab24-28a2f6b99e85",
     ],
   },
   {
@@ -30,12 +32,23 @@ export const ACTION_GROUPS = [
     ],
   },
   {
-    l: "fighting",
+    l: "biting",
     ids: [
       // one-sided fight
       "097bab20-06d1-4ac0-85e7-d5b9010ab7b8",
+    ],
+  },
+  {
+    l: "fighting",
+    ids: [
       // removal-fight
       "c90eca7a-ad86-43d5-902e-05db32614b6c",
+      // old fight
+      "57da19f9-e386-4f00-989c-b3f0dd12deee",
+      // mass fight
+      "b92d03dd-5099-4cb4-9aab-3ee4aa34c39a",
+      // buttfight
+      "573d40b6-c281-459c-988f-96fee451e368",
     ],
   },
   {
@@ -50,6 +63,8 @@ export const ACTION_GROUPS = [
     ids: [
       // rampage
       "5068bdd1-5290-4324-839b-5e0d4218964a",
+      // overrun
+      "d206f5ab-b97c-4c39-84a5-5b0c305db5f6",
     ],
   },
   {
@@ -60,24 +75,12 @@ export const ACTION_GROUPS = [
     ],
   },
   {
-    l: "enraged",
-    ids: [
-      // enrage
-      "a37a14b4-32e4-4680-8892-8a0e9687fe49",
-    ],
-  },
-  {
     l: "ferocious",
     ids: [
       // ferocious
       "f21a7a5b-6c7f-4aaa-aeaa-b06660647074",
-    ],
-  },
-  {
-    l: "luring",
-    ids: [
-      // lure
-      "0d04bd05-8061-4ea9-bafb-6816e9a3077d",
+      // enrage
+      "a37a14b4-32e4-4680-8892-8a0e9687fe49",
     ],
   },
   {
@@ -85,6 +88,8 @@ export const ACTION_GROUPS = [
     ids: [
       // provoke lite
       "fce8ec5a-0879-4038-85e8-3e6486815897",
+      // lure
+      "0d04bd05-8061-4ea9-bafb-6816e9a3077d",
     ],
   },
   {
@@ -94,8 +99,6 @@ export const ACTION_GROUPS = [
       "927537e5-ba1a-4daf-87c1-3703a048617e",
       // flying counter
       "acf8bf02-6505-4ec9-a1fb-14cd1ecb0d0b",
-      // gains flying
-      "bb1ff66b-aee3-480f-b577-701bf30cb0fe",
       // fake flying
       "a8f23d65-1ef7-4a3b-b761-64a899c6de52",
     ],
@@ -108,17 +111,10 @@ export const ACTION_GROUPS = [
     ],
   },
   {
-    l: "uncatchable",
+    l: "elusive",
     ids: [
       // unblockable
       "efd1179a-681e-4acc-ada7-c7da4ff758fa",
-    ],
-  },
-  {
-    l: "overrunning",
-    ids: [
-      // overrun
-      "d206f5ab-b97c-4c39-84a5-5b0c305db5f6",
     ],
   },
   {

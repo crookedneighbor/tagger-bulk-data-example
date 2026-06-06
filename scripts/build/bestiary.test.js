@@ -34,6 +34,7 @@ const oracleTagsRaw = [
     id: "action-tag-id",
     label: "devour",
     uri: "",
+    child_ids: [],
     taggings: [{ oracle_id: "oid-1" }],
   },
 ];
