@@ -34,9 +34,10 @@ const template = readFileSync("src/index.html", "utf8");
 console.log("Writing dist/index.html…");
 writeFileSync("dist/index.html", template);
 
-for (const file of readdirSync("src").filter((f) => f.endsWith(".js"))) {
-  console.log(`Writing dist/${file}…`);
-  copyFileSync(`src/${file}`, `dist/${file}`);
+mkdirSync("dist/js", { recursive: true });
+for (const file of readdirSync("src/js").filter((f) => f.endsWith(".js"))) {
+  console.log(`Writing dist/js/${file}…`);
+  copyFileSync(`src/js/${file}`, `dist/js/${file}`);
 }
 
 for (const [name, payload] of [
