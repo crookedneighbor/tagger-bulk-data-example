@@ -40,7 +40,12 @@ export function buildComboPages({ animals, actions, cards }, template) {
         ? `<div id="results">\n      <div class="slide-hero"><img src="${firstImg}" alt="${escAttr(firstName)}" draggable="false"></div>\n    </div>`
         : `<div id="results"></div>`;
 
+      const htmlAttrs = firstBg
+        ? `lang="en" data-state="active" style="--bg-a: url(${firstBg})"`
+        : `lang="en" data-state="active"`;
+
       const pageHtml = comboBase
+        .replace('<html lang="en" data-state="home">', `<html ${htmlAttrs}>`)
         .replace(/<div id="results">[\s\S]*?<\/div>\s*<\/div>/, resultsHtml)
         .replace("<h1>Bestiary</h1>", `<h1><span>${label}</span></h1>`)
         .replace(
