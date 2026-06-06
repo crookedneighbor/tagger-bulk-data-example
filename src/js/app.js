@@ -63,9 +63,13 @@ fetch("bestiary.json")
       document.title = label + " — MTG Bestiary";
 
       const actionOids = new Set(action.tags.flatMap((t) => t.oids));
-      const actionTagLabels = action.tags
-        .map((t) => `<a href="${esc(t.uri)}" target="_blank" rel="noopener noreferrer">${esc(t.label)}</a>`)
-        .join(", ");
+      const actionTagLinks = action.tags.map(
+        (t) => `<a href="${esc(t.uri)}" target="_blank" rel="noopener noreferrer">${esc(t.label)}</a>`,
+      );
+      const actionTagLabels =
+        actionTagLinks.length <= 2
+          ? actionTagLinks.join(" or ")
+          : `${actionTagLinks.slice(0, -1).join(", ")}, or ${actionTagLinks.at(-1)}`;
       const oidLabels = {};
       for (const t of action.tags) {
         for (const oid of t.oids) {

@@ -22,7 +22,12 @@ export function buildComboPages({ animals, actions, cards }, template) {
 
       const label = toTitle(action.l) + " " + toTitle(animal.l);
       const pageTitle = `${label} — MTG Bestiary`;
-      const pageDesc = `Browse Magic: The Gathering cards featuring a ${animal.l} that is ${action.l}.`;
+      const actionTagLabels = action.tags.map((t) => t.label);
+      const actionTagList =
+        actionTagLabels.length <= 2
+          ? actionTagLabels.join(" or ")
+          : `${actionTagLabels.slice(0, -1).join(", ")}, or ${actionTagLabels.at(-1)}`;
+      const pageDesc = `Browse Magic: The Gathering cards featuring a ${animal.l} that is tagged with ${actionTagList}.`;
       const actionOids = actionOidSets[ai];
 
       let firstBg = null;
