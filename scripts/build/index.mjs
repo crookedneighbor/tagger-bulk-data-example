@@ -12,6 +12,7 @@ import { buildArtTags } from "./art-tags.mjs";
 import { buildOracleTags } from "./oracle-tags.mjs";
 import { buildBestiary } from "./bestiary.mjs";
 import { buildComboPages } from "./combo-pages.mjs";
+import { buildDebugPage } from "./debug-page.mjs";
 
 console.log("Reading data files…");
 const raw = loadData();
@@ -73,5 +74,11 @@ writeFileSync("dist/bestiary.json", JSON.stringify(bestiary));
 console.log("Generating combo pages…");
 const comboCount = buildComboPages(bestiary, template);
 console.log(`  combo pages: ${comboCount}`);
+
+if (process.argv.includes("--debug")) {
+  console.log("Generating debug page…");
+  writeFileSync("dist/debug.html", buildDebugPage(bestiary));
+  console.log("  dist/debug.html");
+}
 
 console.log("Done.");

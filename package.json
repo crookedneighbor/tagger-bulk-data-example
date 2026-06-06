@@ -14,9 +14,16 @@
   "author": "",
   "type": "module",
   "scripts": {
+    "predev": "npm run watch:debug &",
     "dev": "http-server -p 1234 dist/",
     "download": "node scripts/download-bulk-data.mjs",
     "build": "node scripts/build/index.mjs",
+    "build:debug": "node scripts/build/index.mjs --debug",
+    "kill:watch": "pkill -f scripts/watch.mjs",
+    "prewatch": "npm run kill:watch",
+    "watch": "node scripts/watch.mjs",
+    "prewatch:debug": "npm run kill:watch",
+    "watch:debug": "node scripts/watch.mjs --debug",
     "test": "vitest"
   },
   "devDependencies": {
