@@ -81,6 +81,92 @@ describe("buildBestiary", () => {
     });
   });
 
+  it("expands EXPAND_ANIMAL_IDS tags into their children instead of the parent", () => {
+    // reptile (da814be7) is in EXPAND_ANIMAL_IDS
+    const artWithReptile = [
+      {
+        id: "animal-root",
+        label: "animal",
+        uri: "",
+        child_ids: ["da814be7-c427-44c8-8f43-2428c4c0b967"],
+        taggings: [],
+      },
+      {
+        id: "character-root",
+        label: "character",
+        uri: "",
+        child_ids: [],
+        taggings: [],
+      },
+      {
+        id: "da814be7-c427-44c8-8f43-2428c4c0b967",
+        label: "reptile",
+        uri: "",
+        child_ids: ["snake-id", "lizard-id"],
+        taggings: [],
+      },
+      {
+        id: "snake-id",
+        label: "snake",
+        uri: "",
+        child_ids: [],
+        taggings: [{ illustration_id: "ill-1" }],
+      },
+      {
+        id: "lizard-id",
+        label: "lizard",
+        uri: "",
+        child_ids: [],
+        taggings: [{ illustration_id: "ill-1" }],
+      },
+    ];
+    const result = buildBestiary(artWithReptile, oracleTagsRaw, indexes);
+    const labels = result.animals.map((a) => a.l);
+
+    expect(labels).not.toContain("reptile");
+    expect(labels).toContain("snake");
+    expect(labels).toContain("lizard");
+  });
+
+  it("omits animals in OMIT_ANIMAL_IDS", () => {
+    // non-fantasy animal (16c0b648) is in OMIT_ANIMAL_IDS
+    const artWithOmitted = [
+      {
+        id: "animal-root",
+        label: "animal",
+        uri: "",
+        child_ids: ["wolf-id", "16c0b648-c78b-4d16-b476-3f08196d1966"],
+        taggings: [],
+      },
+      {
+        id: "character-root",
+        label: "character",
+        uri: "",
+        child_ids: [],
+        taggings: [],
+      },
+      {
+        id: "wolf-id",
+        label: "wolf",
+        uri: "",
+        child_ids: [],
+        taggings: [{ illustration_id: "ill-1" }],
+      },
+      {
+        id: "16c0b648-c78b-4d16-b476-3f08196d1966",
+        label: "non-fantasy animal",
+        uri: "",
+        child_ids: [],
+        taggings: [{ illustration_id: "ill-1" }],
+      },
+    ];
+    const result = buildBestiary(artWithOmitted, oracleTagsRaw, indexes);
+    const labels = result.animals.map((a) => a.l);
+
+    expect(labels).not.toContain("non-fantasy animal");
+    expect(labels).toContain("wolf");
+  });
+
   it("excludes animals with no matching action OIDs", () => {
     const noOverlapTags = [
       ...artTagsRaw,

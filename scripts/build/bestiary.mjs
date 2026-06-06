@@ -12,6 +12,7 @@ const OMIT_ANIMAL_IDS = new Set([
 // Tags whose children are promoted to top-level animals instead of grouping under the parent.
 const EXPAND_ANIMAL_IDS = new Set([
   "da814be7-c427-44c8-8f43-2428c4c0b967", // reptile → snake, lizard, turtle/tortoise, alligator/crocodile
+  "174cb37c-0b89-40f2-8932-41bfb49d952a", // amphibian → newt, frog, salamander, tadpole
 ]);
 
 const slugify = (s) =>
