@@ -106,6 +106,7 @@ export function buildBestiary(
       const t = artTagById.get(id);
       if (!t) continue;
       for (const tg of t.taggings) {
+        if (tg.weight === "weak") continue;
         if (seenIlls.has(tg.illustration_id)) continue;
         seenIlls.add(tg.illustration_id);
         const oid = illToOracle.get(tg.illustration_id);
