@@ -101,6 +101,68 @@ describe("buildBestiary", () => {
     expect(result.animals.find((a) => a.l === "bear")).toBeUndefined();
   });
 
+  it("collects OIDs from child oracle tags via BFS", () => {
+    const oracleWithChild = [
+      {
+        id: "action-tag-id",
+        label: "devour",
+        uri: "https://tagger.scryfall.com/tags/card/devour",
+        child_ids: ["child-tag-id"],
+        taggings: [],
+      },
+      {
+        id: "child-tag-id",
+        label: "gives devour",
+        uri: "https://tagger.scryfall.com/tags/card/gives-devour",
+        child_ids: [],
+        taggings: [{ oracle_id: "oid-child" }],
+      },
+    ];
+    const indexesWithChild = {
+      ...indexes,
+      cardByOracleId: new Map([
+        ...indexes.cardByOracleId,
+        ["oid-child", { name: "Wolf Pack", uri: "https://scryfall.com/2" }],
+      ]),
+      illToOracle: new Map([["ill-1", "oid-child"]]),
+    };
+    const result = buildBestiary(artTagsRaw, oracleWithChild, indexesWithChild);
+
+    expect(result.actions[0].tags[0].oids).toContain("oid-child");
+    expect(result.animals).toHaveLength(1);
+  });
+
+  it("populates the children array on action tags", () => {
+    const oracleWithChild = [
+      {
+        id: "action-tag-id",
+        label: "devour",
+        uri: "https://tagger.scryfall.com/tags/card/devour",
+        child_ids: ["child-tag-id"],
+        taggings: [{ oracle_id: "oid-1" }],
+      },
+      {
+        id: "child-tag-id",
+        label: "gives devour",
+        uri: "https://tagger.scryfall.com/tags/card/gives-devour",
+        child_ids: [],
+        taggings: [],
+      },
+    ];
+    const result = buildBestiary(artTagsRaw, oracleWithChild, indexes);
+    const tag = result.actions[0].tags[0];
+
+    expect(tag.children).toEqual([
+      { label: "gives devour", uri: "https://tagger.scryfall.com/tags/card/gives-devour" },
+    ]);
+  });
+
+  it("leaves children empty when the action tag has no child tags", () => {
+    const result = buildBestiary(artTagsRaw, oracleTagsRaw, indexes);
+
+    expect(result.actions[0].tags[0].children).toEqual([]);
+  });
+
   it("sorts animals alphabetically", () => {
     const artWithTwo = [
       {
