@@ -94,6 +94,8 @@ export const ACTION_GROUPS = [
     ids: [
       // ferocious
       "f21a7a5b-6c7f-4aaa-aeaa-b06660647074",
+      // naya ferocious
+      "56245db2-4df5-4cd6-9313-b8d70696d572",
     ],
   },
   {
@@ -103,6 +105,8 @@ export const ACTION_GROUPS = [
       "fce8ec5a-0879-4038-85e8-3e6486815897",
       // lure
       "0d04bd05-8061-4ea9-bafb-6816e9a3077d",
+      // lure limited
+      "d0e3a157-c4ff-440f-8e1b-cdb8b2740e00",
       // gives provoke
       "7589781a-0130-47a3-9151-7a689491fc78",
       // gains provoke
