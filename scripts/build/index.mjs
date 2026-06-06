@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, mkdirSync } from "fs";
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, copyFileSync } from "fs";
 import { loadData } from "./load-data.mjs";
 import { buildIndexes } from "./build-indexes.mjs";
 import { buildArtTags } from "./art-tags.mjs";
@@ -34,8 +34,10 @@ const template = readFileSync("src/index.html", "utf8");
 console.log("Writing dist/index.html…");
 writeFileSync("dist/index.html", template);
 
-console.log("Writing dist/app.js…");
-writeFileSync("dist/app.js", readFileSync("src/app.js"));
+for (const file of readdirSync("src").filter((f) => f.endsWith(".js"))) {
+  console.log(`Writing dist/${file}…`);
+  copyFileSync(`src/${file}`, `dist/${file}`);
+}
 
 for (const [name, payload] of [
   ["art-tags.json", artTags],
