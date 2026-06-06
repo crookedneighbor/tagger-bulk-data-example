@@ -25,7 +25,7 @@
 
       html::before,
       html::after {
-        content: '';
+        content: "";
         position: fixed;
         inset: -10%;
         background-size: cover;
@@ -182,13 +182,17 @@
         align-items: center;
         justify-content: center;
         overflow: hidden;
-        background: #0a0a18;
       }
 
       .slide-hero img {
         position: absolute;
-        max-height: 100%;
-        max-width: 100%;
+        top: 2rem;
+        left: 4rem;
+        right: 4rem;
+        bottom: 6rem;
+        max-height: 80%;
+        max-width: calc(100% - 8rem);
+        margin: auto;
         object-fit: contain;
         display: block;
         user-select: none;
