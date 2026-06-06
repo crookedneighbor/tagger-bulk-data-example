@@ -1,3 +1,7 @@
+const SKIP_SETS = new Set([
+  "dbl", // Double Feature - B&W versions of illustrations already used in the app
+]);
+
 export function buildIndexes({ oracleCardsRaw, uniqueArtwork }) {
   const cardByOracleId = new Map(
     oracleCardsRaw.map((c) => [
@@ -13,6 +17,7 @@ export function buildIndexes({ oracleCardsRaw, uniqueArtwork }) {
 
   for (const card of uniqueArtwork) {
     if (!card.illustration_id) continue;
+    if (SKIP_SETS.has(card.set)) continue;
     const artCrop =
       card.image_uris?.art_crop ?? card.card_faces?.[0]?.image_uris?.art_crop;
     const cardImg =
