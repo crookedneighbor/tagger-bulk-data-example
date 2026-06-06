@@ -444,6 +444,8 @@
       const toTitle = (s) => s.replace(/\b\w/g, (c) => c.toUpperCase());
 
       let slideshowTimer = null;
+      let visibilityHandler = null;
+      let transitionGen = 0;
       let bgFront = "a";
 
       function updateBackground(url) {
@@ -459,7 +461,7 @@
         requestAnimationFrame(() => requestAnimationFrame(fn));
       }
 
-      function applyTransition(front, back) {
+      function applyTransition(front, back, gen) {
         const reduceMotion = window.matchMedia(
           "(prefers-reduced-motion: reduce)",
         ).matches;
@@ -473,6 +475,7 @@
             filter: "",
           });
           rAF2(() => {
+            if (transitionGen !== gen) return;
             back.style.transition = "opacity 0.7s ease";
             back.style.opacity = "1";
             front.style.transition = "opacity 0.7s ease";
@@ -494,11 +497,13 @@
           filter: "",
         });
         rAF2(() => {
+          if (transitionGen !== gen) return;
           front.style.transition =
             "transform 0.3s ease-in, opacity 0.15s 0.15s ease-in";
           front.style.transform = "translate(-50%, -50%) rotateY(90deg)";
           front.style.opacity = "0";
           setTimeout(() => {
+            if (transitionGen !== gen) return;
             back.style.transition = "transform 0.3s ease-out";
             back.style.transform = "translate(-50%, -50%) rotateY(0deg)";
           }, 300);
@@ -617,6 +622,10 @@
           function render() {
             clearInterval(slideshowTimer);
             slideshowTimer = null;
+            if (visibilityHandler) {
+              document.removeEventListener("visibilitychange", visibilityHandler);
+              visibilityHandler = null;
+            }
 
             const ci = creatureSel.value;
             const ai = actionSel.value;
@@ -731,6 +740,7 @@
             }
 
             function showSlide(i, instant = false, dir = 1) {
+              const gen = ++transitionGen;
               idx = ((i % count) + count) % count;
               const r = results[idx];
 
@@ -763,7 +773,7 @@
                 backImg.alt = r.name;
                 backImg.style.zIndex = "2";
                 frontImg.style.zIndex = "1";
-                applyTransition(frontImg, backImg);
+                applyTransition(frontImg, backImg, gen);
                 [frontImg, backImg] = [backImg, frontImg];
               }
 
@@ -802,6 +812,14 @@
               });
               startTimer();
             }
+
+            visibilityHandler = () => {
+              if (!document.hidden) {
+                showSlide(idx, true);
+                if (!paused && count > 1) startTimer();
+              }
+            };
+            document.addEventListener("visibilitychange", visibilityHandler);
 
             showSlide(0, true);
             resultsEl.innerHTML = "";
