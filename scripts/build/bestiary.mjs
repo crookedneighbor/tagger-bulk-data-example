@@ -7,6 +7,7 @@ const OMIT_ANIMAL_IDS = new Set([
   "1f766f5b-93b8-4939-ad53-4722bb8d425e", // metal animal
   "2c306ad8-b142-4722-a88f-c73340690124", // cyborg animal
   "7caff245-0520-46f2-a8d5-252ea801ace3", // orca (animal) — covered by whale
+  "ef452582-c749-4fb8-b938-3c10cfaf2d40", // hybrid animal (avatar)
 ]);
 
 // Tags whose children are promoted to top-level animals instead of grouping under the parent.
