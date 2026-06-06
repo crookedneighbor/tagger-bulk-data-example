@@ -419,11 +419,9 @@ console.log(
 // asset fetches (bestiary.json, fonts) resolve from the dist root.
 console.log("Generating combo pages…");
 const toTitle = (s) => s.replace(/\b\w/g, (c) => c.toUpperCase());
+const escAttr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 const homeHtml = readFileSync("src/index.html", "utf8");
-const comboBase = homeHtml.replace(
-  /(<head[^>]*>)/i,
-  '$1\n  <base href="../">',
-);
+const comboBase = homeHtml.replace(/(<head[^>]*>)/i, '$1\n  <base href="../">');
 const actionOidSetsList = bestiaryActions.map(
   (a) => new Set(a.tags.flatMap((t) => t.oids)),
 );
@@ -439,14 +437,25 @@ for (const [ai, action] of bestiaryActions.entries()) {
     const pageDesc = `Browse Magic: The Gathering cards featuring a ${animal.l} that is ${action.l}.`;
     const actionOids = actionOidSetsList[ai];
     let firstBg = null;
+    let firstImg = null;
+    let firstName = null;
     for (const [oid, items] of Object.entries(animal.c)) {
       if (!actionOids.has(oid)) continue;
-      if (items.length > 0 && items[0].bg) { firstBg = items[0].bg; break; }
+      if (items.length > 0) {
+        firstBg = items[0].bg ?? null;
+        firstImg = items[0].a ?? null;
+        firstName = bestiaryCards[oid]?.n ?? "";
+        break;
+      }
     }
     const ogImageTag = firstBg
       ? `\n    <meta property="og:image" content="${firstBg}" />\n    <meta property="og:image:alt" content="${label}" />`
       : "";
+    const resultsHtml = firstImg
+      ? `<div id="results">\n      <div class="slide-hero"><img src="${firstImg}" alt="${escAttr(firstName)}" draggable="false"></div>\n    </div>`
+      : `<div id="results"></div>`;
     const pageHtml = comboBase
+      .replace(/<div id="results">[\s\S]*?<\/div>\s*<\/div>/, resultsHtml)
       .replace("<h1>Bestiary</h1>", `<h1><span>${label}</span></h1>`)
       .replace(
         "<title>MTG Bestiary</title>",
