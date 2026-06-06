@@ -19,22 +19,26 @@ const cardByOracleId = new Map(
 // illustration_id → scryfall_uri for the specific printing
 // illustration_id → oracle_id (for bestiary cross-reference)
 // Fallback to card_faces[0] for double-faced / art-series cards.
-const artByIllustrationId      = new Map();
-const cardImgByIllustrationId  = new Map();
+const artByIllustrationId = new Map();
+const cardImgByIllustrationId = new Map();
 const scryfallByIllustrationId = new Map();
-const illToOracle               = new Map();
+const illToOracle = new Map();
 for (const card of uniqueArtwork) {
   if (!card.illustration_id) continue;
   const artCrop =
     card.image_uris?.art_crop ?? card.card_faces?.[0]?.image_uris?.art_crop;
   const cardImg =
-    card.image_uris?.normal  ?? card.card_faces?.[0]?.image_uris?.normal ??
-    card.image_uris?.large   ?? card.card_faces?.[0]?.image_uris?.large ??
-    card.image_uris?.png     ?? card.card_faces?.[0]?.image_uris?.png;
-  if (artCrop)  artByIllustrationId.set(card.illustration_id, artCrop);
-  if (cardImg)  cardImgByIllustrationId.set(card.illustration_id, cardImg);
-  if (card.scryfall_uri) scryfallByIllustrationId.set(card.illustration_id, card.scryfall_uri);
-  if (card.oracle_id)    illToOracle.set(card.illustration_id, card.oracle_id);
+    card.image_uris?.normal ??
+    card.card_faces?.[0]?.image_uris?.normal ??
+    card.image_uris?.large ??
+    card.card_faces?.[0]?.image_uris?.large ??
+    card.image_uris?.png ??
+    card.card_faces?.[0]?.image_uris?.png;
+  if (artCrop) artByIllustrationId.set(card.illustration_id, artCrop);
+  if (cardImg) cardImgByIllustrationId.set(card.illustration_id, cardImg);
+  if (card.scryfall_uri)
+    scryfallByIllustrationId.set(card.illustration_id, card.scryfall_uri);
+  if (card.oracle_id) illToOracle.set(card.illustration_id, card.oracle_id);
 }
 
 // Art tags: label, URI, art crop URLs for each tagged illustration.
@@ -368,10 +372,10 @@ for (const childId of animalRoot.child_ids) {
     for (const tg of t.taggings) {
       if (seenIlls.has(tg.illustration_id)) continue;
       seenIlls.add(tg.illustration_id);
-      const oid     = illToOracle.get(tg.illustration_id);
+      const oid = illToOracle.get(tg.illustration_id);
       const cardImg = cardImgByIllustrationId.get(tg.illustration_id);
       const artCrop = artByIllustrationId.get(tg.illustration_id);
-      const uri     = scryfallByIllustrationId.get(tg.illustration_id);
+      const uri = scryfallByIllustrationId.get(tg.illustration_id);
       if (!oid || !cardImg || !uri) continue;
       if (!cards[oid]) cards[oid] = [];
       cards[oid].push({ a: cardImg, bg: artCrop ?? cardImg, s: uri });

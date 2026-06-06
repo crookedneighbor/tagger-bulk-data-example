@@ -398,7 +398,9 @@
       }
 
       function applyTransition(front, back) {
-        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const reduceMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        ).matches;
 
         if (reduceMotion) {
           Object.assign(back.style, {
@@ -430,7 +432,8 @@
           filter: "",
         });
         rAF2(() => {
-          front.style.transition = "transform 0.3s ease-in, opacity 0.15s 0.15s ease-in";
+          front.style.transition =
+            "transform 0.3s ease-in, opacity 0.15s 0.15s ease-in";
           front.style.transform = "translate(-50%, -50%) rotateY(90deg)";
           front.style.opacity = "0";
           setTimeout(() => {
