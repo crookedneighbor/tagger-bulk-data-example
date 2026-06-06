@@ -89,7 +89,11 @@ console.log(`  dist/index.html: ${(htmlBytes / 1024).toFixed(1)} KB`);
 
 console.log("Building bestiary.json…");
 
-const slugify = (s) => s.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+const slugify = (s) =>
+  s
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
 
 // Find the "animal" art tag and collect all descendants via BFS.
 const artTagById = new Map(artTagsRaw.map((t) => [t.id, t]));
@@ -121,10 +125,12 @@ while (charQueue.length) {
 // an array of oracle tag UUIDs whose taggings are merged into that action.
 const ACTION_GROUPS = [
   {
-    l: "devouring",
+    l: "eating",
     ids: [
       // devour
       "b4efa2f1-c578-41ea-a43f-2e29648b2bce",
+      // ingest
+      "0ffe5ff7-b9e2-46e3-864e-25bc1b20ef61",
     ],
   },
   {
@@ -219,6 +225,83 @@ const ACTION_GROUPS = [
       "a8f23d65-1ef7-4a3b-b761-64a899c6de52",
     ],
   },
+  {
+    l: "sabotaging",
+    ids: [
+      // saboteur
+      "89ac2a80-7d3c-445a-973f-809e61015b77",
+    ],
+  },
+  {
+    l: "uncatchable",
+    ids: [
+      // unblockable
+      "efd1179a-681e-4acc-ada7-c7da4ff758fa",
+    ],
+  },
+  {
+    l: "overrunning",
+    ids: [
+      // overrun
+      "d206f5ab-b97c-4c39-84a5-5b0c305db5f6",
+    ],
+  },
+  {
+    l: "threatening",
+    ids: [
+      // threaten
+      "5befdcad-c325-4c57-8e69-bf90a3fe19a8",
+    ],
+  },
+  {
+    l: "raiding",
+    ids: [
+      // raid
+      "b0039fde-1eb3-49af-86dd-064abde314cf",
+    ],
+  },
+  {
+    l: "berserk",
+    ids: [
+      // berserk
+      "a339add3-4c60-458e-a188-eeedeb4965ac",
+    ],
+  },
+  {
+    l: "skulking",
+    ids: [
+      // skulk
+      "4a5daa9a-7c1f-4800-866d-e199ad3af1d8",
+    ],
+  },
+  {
+    l: "afflicting",
+    ids: [
+      // afflict
+      "9d44c734-2c29-4f4a-9a6b-87c71dff7c7e",
+    ],
+  },
+  {
+    l: "formidable",
+    ids: [
+      // formidable
+      "462e6553-40b1-4ad1-8abb-a77440f327ef",
+    ],
+  },
+  {
+    l: "renowned",
+    ids: [
+      // renown
+      "e55b60f9-39a0-4357-858c-a8fcb2662d72",
+    ],
+  },
+  {
+    l: "revolting",
+    ids: [
+      // revolt
+      "28baa975-81b0-47fb-b947-99252e612d73",
+    ],
+  },
 ];
 
 const oracleTagById = new Map(oracleTagsRaw.map((t) => [t.id, t]));
@@ -287,7 +370,12 @@ for (const childId of animalRoot.child_ids) {
   }
 
   if (Object.keys(cards).some((oid) => allActionOids.has(oid))) {
-    bestiaryAnimals.push({ l: childTag.label, s: slugify(childTag.label), u: childTag.uri, c: cards });
+    bestiaryAnimals.push({
+      l: childTag.label,
+      s: slugify(childTag.label),
+      u: childTag.uri,
+      c: cards,
+    });
   }
 }
 bestiaryAnimals.sort((a, b) => a.l.localeCompare(b.l));
@@ -317,8 +405,11 @@ console.log(
 // Each page is the same app shell with a <base href="../../"> so that
 // asset fetches (bestiary.json, fonts) resolve from the dist root.
 console.log("Generating combo pages…");
-const homeHtml  = readFileSync("src/index.html", "utf8");
-const comboHtml = homeHtml.replace(/(<head[^>]*>)/i, '$1\n  <base href="../../">');
+const homeHtml = readFileSync("src/index.html", "utf8");
+const comboHtml = homeHtml.replace(
+  /(<head[^>]*>)/i,
+  '$1\n  <base href="../../">',
+);
 const actionOidSetsList = bestiaryActions.map(
   (a) => new Set(a.tags.flatMap((t) => t.oids)),
 );
