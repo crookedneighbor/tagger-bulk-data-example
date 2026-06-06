@@ -43,7 +43,9 @@ console.log("Writing dist/index.html…");
 writeFileSync("dist/index.html", template);
 
 mkdirSync("dist/js", { recursive: true });
-for (const file of readdirSync("src/js").filter((f) => f.endsWith(".js"))) {
+for (const file of readdirSync("src/js").filter(
+  (f) => f.endsWith(".js") && !f.endsWith(".test.js"),
+)) {
   console.log(`Writing dist/js/${file}…`);
   copyFileSync(`src/js/${file}`, `dist/js/${file}`);
 }
