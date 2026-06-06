@@ -108,16 +108,14 @@
 
     .result-bar strong { color: #d4a843; }
 
-    #results {
-      padding: 1.5rem 2rem;
-    }
+    #results { background: #0a0a18; }
 
     .placeholder {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 4rem 2rem;
+      padding: 6rem 2rem;
       color: #555;
       font-size: 1.1rem;
       gap: 0.75rem;
@@ -125,57 +123,97 @@
 
     .placeholder .icon { font-size: 3rem; }
 
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 1rem;
-    }
+    /* ── Slideshow ── */
 
-    .card-item {
-      background: #16213e;
-      border: 1px solid #2a2a4a;
-      border-radius: 8px;
+    .slide-hero {
+      position: relative;
+      height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       overflow: hidden;
-      transition: transform 0.15s, border-color 0.15s;
+      background: #0a0a18;
     }
 
-    .card-item:hover {
-      transform: translateY(-3px);
-      border-color: #d4a843;
-    }
-
-    .card-item a.art-link {
+    .slide-hero img {
+      max-height: 100%;
+      max-width: 100%;
+      object-fit: contain;
       display: block;
-      line-height: 0;
+      user-select: none;
     }
 
-    .card-item img {
-      width: 100%;
+    .slide-overlay {
+      position: absolute;
+      inset: auto 0 0;
+      padding: 3rem 1.5rem 1rem;
+      background: linear-gradient(transparent, rgba(0,0,0,0.82));
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      pointer-events: none;
+    }
+
+    .slide-overlay a { pointer-events: auto; }
+
+    .slide-name {
       display: block;
-      aspect-ratio: 5/4;
-      object-fit: cover;
-    }
-
-    .card-info {
-      padding: 0.5rem 0.6rem;
-    }
-
-    .card-info a {
-      color: #c8c8e8;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
       text-decoration: none;
-      font-size: 0.78rem;
-      line-height: 1.3;
-      display: block;
     }
 
-    .card-info a:hover { color: #d4a843; }
+    .slide-name:hover { color: #d4a843; }
 
-    .card-note {
+    .slide-note {
       display: block;
       margin-top: 0.2rem;
-      font-size: 0.68rem;
-      color: #7a7a9a;
+      font-size: 0.75rem;
+      color: #d4a843;
       font-style: italic;
+    }
+
+    .slide-counter {
+      color: #aaa;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .slide-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.35);
+      color: #fff;
+      border: none;
+      width: 3rem;
+      height: 5rem;
+      font-size: 1.8rem;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s, background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide-hero:hover .slide-nav,
+    .slide-nav:focus { opacity: 1; outline: none; }
+    .slide-nav:hover  { background: rgba(0,0,0,0.65); }
+    .slide-prev { left: 0;  border-radius: 0 4px 4px 0; }
+    .slide-next { right: 0; border-radius: 4px 0 0 4px; }
+
+    .slide-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      width: 0;
+      background: #d4a843;
+      pointer-events: none;
     }
 
     .loading {
@@ -243,6 +281,8 @@
   const h1           = document.querySelector('h1');
 
   const toTitle = s => s.replace(/\b\w/g, c => c.toUpperCase());
+
+  let slideshowTimer = null;
 
   fetch('bestiary.json')
     .then(r => r.json())
@@ -328,7 +368,12 @@
         render();
       }
 
+      const SLIDE_INTERVAL = 4000;
+
       function render() {
+        clearInterval(slideshowTimer);
+        slideshowTimer = null;
+
         const ci = creatureSel.value;
         const ai = actionSel.value;
 
@@ -352,7 +397,6 @@
 
         const actionOids = new Set(action.tags.flatMap(t => t.oids));
 
-        // Build oracle_id → applicable tag labels for this action group.
         const oidLabels = {};
         for (const t of action.tags) {
           for (const oid of t.oids) {
@@ -361,7 +405,6 @@
           }
         }
 
-        // One result entry per print (illustration), so each art crop gets its own tile.
         const results = [];
         for (const [oid, items] of Object.entries(animal.c)) {
           if (!actionOids.has(oid)) continue;
@@ -388,24 +431,84 @@
           `<strong>${count}</strong> card${count !== 1 ? 's' : ''} ` +
           `with <strong>${esc(animal.l)}</strong> in the art that also have <strong>${esc(action.l)}</strong>`;
 
-        const grid = document.createElement('div');
-        grid.className = 'card-grid';
-        for (const r of results) {
-          const item = document.createElement('div');
-          item.className = 'card-item';
-          item.innerHTML = `
-            <a class="art-link" href="${esc(r.scryfall)}" target="_blank" rel="noopener">
-              <img src="${esc(r.artUrl)}" loading="lazy" alt="${esc(r.name)}">
-            </a>
-            <div class="card-info">
-              <a href="${esc(r.scryfall)}" target="_blank" rel="noopener">${esc(r.name)}</a>
-              ${r.note ? `<span class="card-note">${esc(r.note)}</span>` : ''}
-            </div>`;
-          grid.appendChild(item);
+        // Build slideshow
+        const hero     = document.createElement('div');
+        hero.className = 'slide-hero';
+        hero.innerHTML = `
+          <img src="" alt="" draggable="false">
+          <div class="slide-overlay">
+            <div class="slide-card-info">
+              <a class="slide-name" href="" target="_blank" rel="noopener"></a>
+              <span class="slide-note"></span>
+            </div>
+            <span class="slide-counter"></span>
+          </div>
+          ${count > 1 ? `
+          <button class="slide-nav slide-prev" aria-label="Previous">&#x2039;</button>
+          <button class="slide-nav slide-next" aria-label="Next">&#x203A;</button>
+          ` : ''}
+          <div class="slide-progress"></div>`;
+
+        const img        = hero.querySelector('img');
+        const nameEl     = hero.querySelector('.slide-name');
+        const noteEl     = hero.querySelector('.slide-note');
+        const counterEl  = hero.querySelector('.slide-counter');
+        const progressEl = hero.querySelector('.slide-progress');
+        const prevBtn    = hero.querySelector('.slide-prev');
+        const nextBtn    = hero.querySelector('.slide-next');
+
+        let idx     = 0;
+        let paused  = false;
+
+        function animateProgress() {
+          progressEl.style.transition = 'none';
+          progressEl.style.width = '0';
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            progressEl.style.transition = `width ${SLIDE_INTERVAL}ms linear`;
+            progressEl.style.width = '100%';
+          }));
         }
 
+        function showSlide(i) {
+          idx = ((i % count) + count) % count;
+          const r = results[idx];
+          img.src          = r.artUrl;
+          img.alt          = r.name;
+          nameEl.href      = r.scryfall;
+          nameEl.textContent = r.name;
+          noteEl.textContent = r.note;
+          noteEl.hidden    = !r.note;
+          counterEl.textContent = count > 1 ? `${idx + 1} / ${count}` : '';
+          if (count > 1) animateProgress();
+        }
+
+        function startTimer() {
+          clearInterval(slideshowTimer);
+          slideshowTimer = setInterval(() => {
+            if (!paused) showSlide(idx + 1);
+          }, SLIDE_INTERVAL);
+        }
+
+        if (count > 1) {
+          hero.addEventListener('mouseenter', () => {
+            paused = true;
+            progressEl.style.transition = 'none';
+            progressEl.style.width = progressEl.getBoundingClientRect().width /
+              hero.getBoundingClientRect().width * 100 + '%';
+          });
+          hero.addEventListener('mouseleave', () => {
+            paused = false;
+            showSlide(idx);
+            startTimer();
+          });
+          prevBtn.addEventListener('click', () => { showSlide(idx - 1); startTimer(); });
+          nextBtn.addEventListener('click', () => { showSlide(idx + 1); startTimer(); });
+          startTimer();
+        }
+
+        showSlide(0);
         resultsEl.innerHTML = '';
-        resultsEl.appendChild(grid);
+        resultsEl.appendChild(hero);
       }
 
       function randomize() {
