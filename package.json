@@ -12,14 +12,16 @@
   },
   "license": "Unlicense",
   "author": "",
-  "type": "commonjs",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "http-server -p 1234 dist/",
     "download": "node scripts/download-bulk-data.mjs",
-    "build": "node scripts/build/index.mjs"
+    "build": "node scripts/build/index.mjs",
+    "test": "vitest"
   },
   "devDependencies": {
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "jsdom": "^29.1.1",
+    "vitest": "^4.1.8"
   }
 }
