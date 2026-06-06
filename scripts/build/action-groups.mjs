@@ -53,6 +53,8 @@ export const ACTION_GROUPS = [
       "b92d03dd-5099-4cb4-9aab-3ee4aa34c39a",
       // buttfight
       "573d40b6-c281-459c-988f-96fee451e368",
+      // mutiny (force same-controller creatures to fight each other)
+      "6bb015c9-72ea-4e44-bea8-37c99d6a74ff",
     ],
   },
   {
@@ -124,6 +126,10 @@ export const ACTION_GROUPS = [
       "a8f23d65-1ef7-4a3b-b761-64a899c6de52",
       // gives high flying
       "6079c2ee-3f9b-4bc9-a9cd-7af212106419",
+      // gives fake flying
+      "2b3c1055-d859-4b4a-8b5f-2aef68bea0c4",
+      // wingman (gives flying to other attackers)
+      "dbed7b33-2047-4e6c-a21c-e4537f34f035",
     ],
   },
   {
