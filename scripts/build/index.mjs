@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, mkdirSync, readdirSync, copyFileSync } from "fs";
+import { readFileSync, writeFileSync, mkdirSync, rmSync, readdirSync, copyFileSync } from "fs";
 import { loadData } from "./load-data.mjs";
 import { buildIndexes } from "./build-indexes.mjs";
 import { buildArtTags } from "./art-tags.mjs";
@@ -22,6 +22,7 @@ console.log(
     `oracle tags: ${oracleTags.length.toLocaleString()}`,
 );
 
+rmSync("dist", { recursive: true, force: true });
 mkdirSync("dist", { recursive: true });
 
 console.log("Writing dist/art-tags.json…");
