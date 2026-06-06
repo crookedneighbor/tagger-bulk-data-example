@@ -418,8 +418,9 @@ console.log(
 // Each page is the same app shell with a <base href="../../"> so that
 // asset fetches (bestiary.json, fonts) resolve from the dist root.
 console.log("Generating combo pages…");
+const toTitle = (s) => s.replace(/\b\w/g, (c) => c.toUpperCase());
 const homeHtml = readFileSync("src/index.html", "utf8");
-const comboHtml = homeHtml.replace(
+const comboBase = homeHtml.replace(
   /(<head[^>]*>)/i,
   '$1\n  <base href="../../">',
 );
@@ -433,9 +434,27 @@ for (const [ai, action] of bestiaryActions.entries()) {
       actionOidSetsList[ai].has(oid),
     );
     if (!hasOverlap) continue;
+    const label = toTitle(action.l) + " " + toTitle(animal.l);
+    const pageTitle = `${label} — MTG Bestiary`;
+    const pageDesc = `Browse Magic: The Gathering cards featuring a ${animal.l} that is ${action.l}.`;
+    const actionOids = actionOidSetsList[ai];
+    let firstBg = null;
+    for (const [oid, items] of Object.entries(animal.c)) {
+      if (!actionOids.has(oid)) continue;
+      if (items.length > 0 && items[0].bg) { firstBg = items[0].bg; break; }
+    }
+    const ogImageTag = firstBg
+      ? `\n    <meta property="og:image" content="${firstBg}" />\n    <meta property="og:image:alt" content="${label}" />`
+      : "";
+    const pageHtml = comboBase
+      .replace("<h1>Bestiary</h1>", `<h1><span>${label}</span></h1>`)
+      .replace(
+        "<title>MTG Bestiary</title>",
+        `<title>${pageTitle}</title>\n    <meta name="description" content="${pageDesc}" />\n    <meta property="og:title" content="${pageTitle}" />\n    <meta property="og:description" content="${pageDesc}" />\n    <meta property="og:type" content="website" />${ogImageTag}`,
+      );
     const dir = `dist/${action.s}/${animal.s}`;
     mkdirSync(dir, { recursive: true });
-    writeFileSync(`${dir}/index.html`, comboHtml);
+    writeFileSync(`${dir}/index.html`, pageHtml);
     comboCount++;
   }
 }
