@@ -5,11 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- page-meta -->
     <title>MTG Bestiary</title>
-    <meta name="description" content="Browse Magic: The Gathering cards by creature type and action using Scryfall Tagger bulk data." />
+    <link
+      rel="preload"
+      as="image"
+      href="https://cards.scryfall.io/art_crop/front/b/c/bc4aa918-53b9-4177-a859-f5a8eff09fe5.jpg?1562812515"
+    />
+    <meta
+      name="description"
+      content="Browse Magic: The Gathering cards by creature type and action using Scryfall Tagger bulk data."
+    />
     <meta property="og:title" content="MTG Bestiary" />
-    <meta property="og:description" content="Browse Magic: The Gathering cards by creature type and action using Scryfall Tagger bulk data." />
+    <meta
+      property="og:description"
+      content="Browse Magic: The Gathering cards by creature type and action using Scryfall Tagger bulk data."
+    />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://cards.scryfall.io/art_crop/front/b/c/bc4aa918-53b9-4177-a859-f5a8eff09fe5.jpg?1562812515" />
+    <meta
+      property="og:image"
+      content="https://cards.scryfall.io/art_crop/front/b/c/bc4aa918-53b9-4177-a859-f5a8eff09fe5.jpg?1562812515"
+    />
     <meta property="og:image:alt" content="Uncage the Menagerie" />
     <!-- /page-meta -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -39,7 +53,7 @@
         inset: -10%;
         background-size: cover;
         background-position: center;
-        filter: blur(24px) brightness(0.25);
+        filter: blur(24px) brightness(0.5);
         z-index: -1;
         transition:
           opacity 0.6s ease,
@@ -49,7 +63,7 @@
 
       html[data-state="home"]::before,
       html[data-state="home"]::after {
-        filter: blur(6px) brightness(0.55);
+        filter: blur(6px) brightness(0.75);
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -239,9 +253,13 @@
         overflow: hidden;
       }
 
+      .slide-hero a {
+        display: contents;
+      }
+
       .slide-hero img {
         position: absolute;
-        top: calc(50% - 3rem); /* center, shifted up to clear bottom overlay */
+        top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
         max-height: 70%;
@@ -260,7 +278,6 @@
         .slide-hero img {
           max-height: 65%;
           max-width: calc(100% - 4rem);
-          top: calc(50% - 2rem);
         }
         .slide-nav {
           width: 2rem;
@@ -270,38 +287,9 @@
 
       .slide-overlay {
         position: absolute;
-        inset: auto 0 0;
-        padding: 3rem 1.5rem 1rem;
-        background: linear-gradient(transparent, rgba(0, 0, 0, 0.82));
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        gap: 1rem;
+        bottom: 6px;
+        right: 0.75rem;
         pointer-events: none;
-      }
-
-      .slide-overlay a {
-        pointer-events: auto;
-      }
-
-      .slide-name {
-        display: block;
-        color: #fff;
-        font-size: 1.1rem;
-        font-weight: 600;
-        text-decoration: none;
-      }
-
-      .slide-name:hover {
-        color: #d4a843;
-      }
-
-      .slide-note {
-        display: block;
-        margin-top: 0.2rem;
-        font-size: 0.75rem;
-        color: #d4a843;
-        font-style: italic;
       }
 
       .slide-counter {
@@ -460,6 +448,9 @@
       }
 
       const toTitle = (s) => s.replace(/\b\w/g, (c) => c.toUpperCase());
+
+      const HOME_BG =
+        "https://cards.scryfall.io/art_crop/front/b/c/bc4aa918-53b9-4177-a859-f5a8eff09fe5.jpg?1562812515";
 
       let slideshowTimer = null;
       let visibilityHandler = null;
@@ -653,6 +644,7 @@
 
             if (ci === "" || ai === "") {
               document.documentElement.dataset.state = "home";
+              updateBackground(HOME_BG);
               popH1("Bestiary");
               document.title = "MTG Bestiary";
               resultBar.innerHTML = "";
@@ -718,13 +710,9 @@
             const hero = document.createElement("div");
             hero.className = "slide-hero";
             hero.innerHTML = `
-          <img class="img-a" src="" alt="" draggable="false" style="opacity:0">
-          <img class="img-b" src="" alt="" draggable="false" style="opacity:0">
+          <a class="link-a" href="" target="_blank" rel="noopener"><img class="img-a" src="" alt="" draggable="false" style="opacity:0"></a>
+          <a class="link-b" href="" target="_blank" rel="noopener"><img class="img-b" src="" alt="" draggable="false" style="opacity:0"></a>
           <div class="slide-overlay">
-            <div class="slide-card-info">
-              <a class="slide-name" href="" target="_blank" rel="noopener"></a>
-              <span class="slide-note"></span>
-            </div>
             <span class="slide-counter"></span>
           </div>
           ${
@@ -739,8 +727,8 @@
 
             const imgA = hero.querySelector(".img-a");
             const imgB = hero.querySelector(".img-b");
-            const nameEl = hero.querySelector(".slide-name");
-            const noteEl = hero.querySelector(".slide-note");
+            const linkA = hero.querySelector(".link-a");
+            const linkB = hero.querySelector(".link-b");
             const counterEl = hero.querySelector(".slide-counter");
             const progressEl = hero.querySelector(".slide-progress");
             const prevBtn = hero.querySelector(".slide-prev");
@@ -750,6 +738,8 @@
             let paused = false;
             let frontImg = imgA;
             let backImg = imgB;
+            let frontLink = linkA;
+            let backLink = linkB;
 
             function animateProgress() {
               progressEl.style.transition = "none";
@@ -767,10 +757,6 @@
               idx = ((i % count) + count) % count;
               const r = results[idx];
 
-              nameEl.href = r.scryfall;
-              nameEl.textContent = r.name;
-              noteEl.textContent = r.note;
-              noteEl.hidden = !r.note;
               counterEl.textContent = count > 1 ? `${idx + 1} / ${count}` : "";
               updateBackground(r.bg);
 
@@ -791,13 +777,16 @@
                 });
                 frontImg.src = r.artUrl;
                 frontImg.alt = r.name;
+                frontLink.href = r.scryfall;
               } else {
                 backImg.src = r.artUrl;
                 backImg.alt = r.name;
+                backLink.href = r.scryfall;
                 backImg.style.zIndex = "2";
                 frontImg.style.zIndex = "1";
                 applyTransition(frontImg, backImg, gen);
                 [frontImg, backImg] = [backImg, frontImg];
+                [frontLink, backLink] = [backLink, frontLink];
               }
 
               if (count > 1) animateProgress();

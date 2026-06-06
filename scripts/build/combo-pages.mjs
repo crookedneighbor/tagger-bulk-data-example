@@ -22,22 +22,27 @@ export function buildComboPages({ animals, actions, cards }, template) {
 
       let firstBg = null;
       let firstImg = null;
+      let firstScryfall = null;
       let firstName = null;
       for (const [oid, items] of Object.entries(animal.c)) {
         if (!actionOids.has(oid)) continue;
         if (items.length > 0) {
           firstBg = items[0].bg ?? null;
           firstImg = items[0].a ?? null;
+          firstScryfall = items[0].s ?? null;
           firstName = cards[oid]?.n ?? "";
           break;
         }
       }
 
+      const preloadTag = firstBg
+        ? `\n    <link rel="preload" as="image" href="${firstBg}" />`
+        : "";
       const ogImageTag = firstBg
         ? `\n    <meta property="og:image" content="${firstBg}" />\n    <meta property="og:image:alt" content="${label}" />`
         : "";
       const resultsHtml = firstImg
-        ? `<div id="results">\n      <div class="slide-hero"><img src="${firstImg}" alt="${escAttr(firstName)}" draggable="false"></div>\n    </div>`
+        ? `<div id="results">\n      <div class="slide-hero"><a href="${escAttr(firstScryfall ?? "")}" target="_blank" rel="noopener"><img src="${firstImg}" alt="${escAttr(firstName)}" draggable="false"></a></div>\n    </div>`
         : `<div id="results"></div>`;
 
       const htmlAttrs = firstBg
@@ -50,7 +55,7 @@ export function buildComboPages({ animals, actions, cards }, template) {
         .replace("<h1>Bestiary</h1>", `<h1><span>${label}</span></h1>`)
         .replace(
           /<!-- page-meta -->[\s\S]*?<!-- \/page-meta -->/,
-          `<title>${pageTitle}</title>\n    <meta name="description" content="${pageDesc}" />\n    <meta property="og:title" content="${pageTitle}" />\n    <meta property="og:description" content="${pageDesc}" />\n    <meta property="og:type" content="website" />${ogImageTag}`,
+          `<title>${pageTitle}</title>${preloadTag}\n    <meta name="description" content="${pageDesc}" />\n    <meta property="og:title" content="${pageTitle}" />\n    <meta property="og:description" content="${pageDesc}" />\n    <meta property="og:type" content="website" />${ogImageTag}`,
         );
 
       mkdirSync(`dist/${action.s}`, { recursive: true });
