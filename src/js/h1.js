@@ -1,7 +1,7 @@
-const h1 = document.querySelector("h1");
 let h1Ready = false;
 
 export function fitH1() {
+  const h1 = document.querySelector("h1");
   h1.style.fontSize = "";
   const cs = window.getComputedStyle(h1);
   const lineH = parseFloat(cs.lineHeight);
@@ -15,11 +15,14 @@ export function fitH1() {
 }
 
 export function popH1(text) {
+  const h1 = document.querySelector("h1");
   const changed = h1.textContent !== text;
   const span = document.createElement("span");
   span.textContent = text;
   h1.replaceChildren(span);
+
   fitH1();
+
   if (h1Ready && changed) {
     h1.classList.remove("pop");
     void h1.offsetWidth;
@@ -29,5 +32,6 @@ export function popH1(text) {
   }
 }
 
-fitH1();
-window.addEventListener("resize", fitH1);
+export function resetReadyState() {
+  h1Ready = false;
+}

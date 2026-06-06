@@ -1,5 +1,5 @@
 import { esc, toTitle } from "./utils.js";
-import { popH1 } from "./h1.js";
+import { popH1, fitH1 } from "./h1.js";
 import { updateBackground, HOME_BG } from "./background.js";
 import { buildSlideshow } from "./slideshow.js";
 import { setsOverlap, createDropdowns } from "./dropdowns.js";
@@ -10,6 +10,9 @@ const actionSel = document.getElementById("action-select");
 const resultBar = document.getElementById("result-bar");
 const resultsEl = document.getElementById("results");
 const randomizeBtn = document.getElementById("btn-randomize");
+
+fitH1();
+window.addEventListener("resize", fitH1);
 
 fetch("bestiary.json")
   .then((r) => r.json())
