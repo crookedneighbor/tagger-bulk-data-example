@@ -44,7 +44,7 @@ export function buildComboPages({ animals, actions, cards }, template) {
         .replace(/<div id="results">[\s\S]*?<\/div>\s*<\/div>/, resultsHtml)
         .replace("<h1>Bestiary</h1>", `<h1><span>${label}</span></h1>`)
         .replace(
-          "<title>MTG Bestiary</title>",
+          /<!-- page-meta -->[\s\S]*?<!-- \/page-meta -->/,
           `<title>${pageTitle}</title>\n    <meta name="description" content="${pageDesc}" />\n    <meta property="og:title" content="${pageTitle}" />\n    <meta property="og:description" content="${pageDesc}" />\n    <meta property="og:type" content="website" />${ogImageTag}`,
         );
 
