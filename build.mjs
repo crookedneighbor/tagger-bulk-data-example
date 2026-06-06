@@ -313,4 +313,28 @@ console.log(
     `cards: ${Object.keys(bestiaryCards).length}`,
 );
 
+// Generate a static page for every valid action × animal combination.
+// Each page is the same app shell with a <base href="../../"> so that
+// asset fetches (bestiary.json, fonts) resolve from the dist root.
+console.log("Generating combo pages…");
+const homeHtml  = readFileSync("src/index.html", "utf8");
+const comboHtml = homeHtml.replace(/(<head[^>]*>)/i, '$1\n  <base href="../../">');
+const actionOidSetsList = bestiaryActions.map(
+  (a) => new Set(a.tags.flatMap((t) => t.oids)),
+);
+let comboCount = 0;
+for (const [ai, action] of bestiaryActions.entries()) {
+  for (const animal of bestiaryAnimals) {
+    const hasOverlap = Object.keys(animal.c).some((oid) =>
+      actionOidSetsList[ai].has(oid),
+    );
+    if (!hasOverlap) continue;
+    const dir = `dist/${action.s}/${animal.s}`;
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(`${dir}/index.html`, comboHtml);
+    comboCount++;
+  }
+}
+console.log(`  combo pages: ${comboCount}`);
+
 console.log("Done.");

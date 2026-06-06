@@ -240,6 +240,9 @@
   const resultBar    = document.getElementById('result-bar');
   const resultsEl    = document.getElementById('results');
   const randomizeBtn = document.getElementById('btn-randomize');
+  const h1           = document.querySelector('h1');
+
+  const toTitle = s => s.replace(/\b\w/g, c => c.toUpperCase());
 
   fetch('bestiary.json')
     .then(r => r.json())
@@ -268,6 +271,8 @@
       const actionOidSets = actions.map(a => new Set(a.tags.flatMap(t => t.oids)));
 
       // Slug helpers and lookup maps for URL routing.
+      // BASE is derived from <base href> (combo pages) or the page URL (home).
+      const BASE = new URL(document.baseURI).pathname;
       const slugify = s => s.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
       const actionBySlug = new Map(actions.map((a, i) => [slugify(a.l), i]));
       const animalBySlug = new Map(animals.map((a, i) => [slugify(a.l), i]));
@@ -296,21 +301,19 @@
         if (creatureSel.selectedOptions[0]?.disabled) creatureSel.value = '';
       }
 
-      // Update the URL hash from current dropdown values without triggering popstate.
-      function updateHash() {
+      // Update the URL path from current dropdown values without triggering popstate.
+      function updatePath() {
         const ai = actionSel.value;
         const ci = creatureSel.value;
-        const newHash = ai !== '' && ci !== ''
-          ? '#' + slugify(actions[Number(ai)].l) + '/' + slugify(animals[Number(ci)].l)
-          : location.pathname + location.search;
-        if (location.href.split('#')[1] !== newHash.replace('#', '')) {
-          history.pushState(null, '', newHash);
-        }
+        const newPath = ai !== '' && ci !== ''
+          ? BASE + slugify(actions[Number(ai)].l) + '/' + slugify(animals[Number(ci)].l)
+          : BASE;
+        if (location.pathname !== newPath) history.pushState(null, '', newPath);
       }
 
-      // Parse the current hash and apply it to the dropdowns.
-      function applyHash() {
-        const parts = location.hash.slice(1).split('/');
+      // Parse the current path and apply it to the dropdowns.
+      function applyPath() {
+        const parts = location.pathname.slice(BASE.length).split('/').filter(Boolean);
         const ai = actionBySlug.get(parts[0]);
         const ci = animalBySlug.get(parts[1]);
         if (ai !== undefined && ci !== undefined) {
@@ -330,6 +333,8 @@
         const ai = actionSel.value;
 
         if (ci === '' || ai === '') {
+          h1.textContent = 'Bestiary';
+          document.title = 'MTG Bestiary';
           resultBar.innerHTML = '';
           resultsEl.innerHTML = `
             <div class="placeholder">
@@ -339,8 +344,12 @@
           return;
         }
 
-        const animal     = animals[Number(ci)];
-        const action     = actions[Number(ai)];
+        const animal = animals[Number(ci)];
+        const action = actions[Number(ai)];
+        const label  = toTitle(action.l) + ' ' + toTitle(animal.l);
+        h1.textContent = label;
+        document.title = label + ' — MTG Bestiary';
+
         const actionOids = new Set(action.tags.flatMap(t => t.oids));
 
         // Build oracle_id → applicable tag labels for this action group.
@@ -408,27 +417,27 @@
         creatureSel.value = ci;
         updateCreatureDisabled(String(ai));
         updateActionDisabled(String(ci));
-        updateHash();
+        updatePath();
         render();
       }
 
       creatureSel.addEventListener('change', () => {
         updateActionDisabled(creatureSel.value);
-        updateHash();
+        updatePath();
         render();
       });
       actionSel.addEventListener('change', () => {
         updateCreatureDisabled(actionSel.value);
-        updateHash();
+        updatePath();
         render();
       });
       randomizeBtn.addEventListener('click', randomize);
 
       // Browser back/forward navigation.
-      window.addEventListener('popstate', applyHash);
+      window.addEventListener('popstate', applyPath);
 
-      // Initial load — apply any hash already in the URL.
-      applyHash();
+      // Initial load — apply any path already in the URL.
+      applyPath();
     })
     .catch(err => {
       resultsEl.innerHTML = `<p class="loading">Failed to load data: ${esc(err.message)}</p>`;
