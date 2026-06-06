@@ -1,0 +1,24 @@
+{
+  "name": "tagger-bulk-data-example",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/crookedneighbor/tagger-bulk-data-example#readme",
+  "bugs": {
+    "url": "https://github.com/crookedneighbor/tagger-bulk-data-example/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crookedneighbor/tagger-bulk-data-example.git"
+  },
+  "license": "Unlicense",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "dev": "http-server -p 1234 app/",
+    "download": "node download-bulk-data.mjs"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
