@@ -6,6 +6,12 @@ const OMIT_ANIMAL_IDS = new Set([
   "a89c01dc-f857-4ef2-a90a-af8f55ed5fc5", // undead animal
   "1f766f5b-93b8-4939-ad53-4722bb8d425e", // metal animal
   "2c306ad8-b142-4722-a88f-c73340690124", // cyborg animal
+  "7caff245-0520-46f2-a8d5-252ea801ace3", // orca (animal) — covered by whale
+]);
+
+// Tags whose children are promoted to top-level animals instead of grouping under the parent.
+const EXPAND_ANIMAL_IDS = new Set([
+  "da814be7-c427-44c8-8f43-2428c4c0b967", // reptile → snake, lizard, turtle/tortoise, alligator/crocodile
 ]);
 
 const slugify = (s) =>
@@ -56,8 +62,18 @@ export function buildBestiary(
     bestiaryActions.push({ l: group.l, s: slugify(group.l), tags });
   }
 
-  const bestiaryAnimals = [];
+  const animalIds = [];
   for (const childId of animalRoot.child_ids) {
+    if (EXPAND_ANIMAL_IDS.has(childId)) {
+      const childTag = artTagById.get(childId);
+      if (childTag) animalIds.push(...childTag.child_ids);
+    } else {
+      animalIds.push(childId);
+    }
+  }
+
+  const bestiaryAnimals = [];
+  for (const childId of animalIds) {
     const childTag = artTagById.get(childId);
     if (!childTag || OMIT_ANIMAL_IDS.has(childId)) continue;
 
