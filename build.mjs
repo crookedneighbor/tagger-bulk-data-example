@@ -270,7 +270,6 @@ for (const childId of animalRoot.child_ids) {
   const cards = {};
   const seenIlls = new Set();
   for (const id of subtreeIds) {
-    if (characterIds.has(id)) continue;
     const t = artTagById.get(id);
     if (!t) continue;
     for (const tg of t.taggings) {

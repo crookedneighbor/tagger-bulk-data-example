@@ -295,6 +295,7 @@
           }
         }
 
+        // One result entry per print (illustration), so each art crop gets its own tile.
         const results = [];
         for (const [oid, items] of Object.entries(animal.c)) {
           if (!actionOids.has(oid)) continue;
