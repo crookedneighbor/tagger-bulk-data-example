@@ -8,6 +8,8 @@ export const ACTION_GROUPS = [
       "0ffe5ff7-b9e2-46e3-864e-25bc1b20ef61",
       // gives ingest
       "21418f94-c40a-4d3b-832e-3f89c7804dee",
+      // gives devour
+      "789bc1cc-0ac8-4c61-9cfb-195798e53d57",
     ],
   },
   {
@@ -15,6 +17,8 @@ export const ACTION_GROUPS = [
     ids: [
       // stalking
       "5cbef5fa-28be-4b57-8862-1ba55d5b6af8",
+      // gives-stalking
+      "6a08380f-71ba-4b6e-9178-d3a761189800",
     ],
   },
   {
@@ -65,6 +69,10 @@ export const ACTION_GROUPS = [
       "5068bdd1-5290-4324-839b-5e0d4218964a",
       // overrun
       "d206f5ab-b97c-4c39-84a5-5b0c305db5f6",
+      // gives rampage
+      "19ef4a8c-c3ed-4316-bc01-3967da0ef47f",
+      // gains rampage
+      "3affc461-1d04-4d69-a715-efe8151fd0cf",
     ],
   },
   {
@@ -90,6 +98,10 @@ export const ACTION_GROUPS = [
       "fce8ec5a-0879-4038-85e8-3e6486815897",
       // lure
       "0d04bd05-8061-4ea9-bafb-6816e9a3077d",
+      // gives provoke
+      "7589781a-0130-47a3-9151-7a689491fc78",
+      // gains provoke
+      "5e18fa56-c143-4a22-855b-77fab1aa2604",
     ],
   },
   {
@@ -101,6 +113,8 @@ export const ACTION_GROUPS = [
       "acf8bf02-6505-4ec9-a1fb-14cd1ecb0d0b",
       // fake flying
       "a8f23d65-1ef7-4a3b-b761-64a899c6de52",
+      // gives high flying
+      "6079c2ee-3f9b-4bc9-a9cd-7af212106419",
     ],
   },
   {
@@ -115,6 +129,12 @@ export const ACTION_GROUPS = [
     ids: [
       // unblockable
       "efd1179a-681e-4acc-ada7-c7da4ff758fa",
+      // gives unblockable
+      "a2799aac-0769-4411-a881-78e2d6ef28ae",
+      // unstoppable
+      "a3ec66d1-07aa-4510-81b2-e26bd51e9d5e",
+      // gives unstoppable
+      "031f8b9b-ec49-4ca8-a88d-f74acabbaa24",
     ],
   },
   {
@@ -150,6 +170,8 @@ export const ACTION_GROUPS = [
     ids: [
       // afflict
       "9d44c734-2c29-4f4a-9a6b-87c71dff7c7e",
+      // gives afflict
+      "ca04fc60-f19d-4c1c-be62-8bc643121984",
     ],
   },
   {
