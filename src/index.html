@@ -82,6 +82,22 @@
     select:focus { outline: 2px solid #d4a843; outline-offset: 2px; }
     select:disabled { opacity: 0.5; cursor: not-allowed; }
 
+    .btn-randomize {
+      background: #0f3460;
+      color: #d4a843;
+      border: 1px solid #4a4a7a;
+      border-radius: 6px;
+      padding: 0.6rem 1.1rem;
+      font-size: 0.95rem;
+      cursor: pointer;
+      white-space: nowrap;
+      align-self: flex-end;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .btn-randomize:hover { background: #1a4a7a; border-color: #d4a843; }
+    .btn-randomize:disabled { opacity: 0.5; cursor: not-allowed; }
+
     .result-bar {
       padding: 0.75rem 2rem;
       font-size: 0.85rem;
@@ -200,6 +216,7 @@
       <option value="">Choose a creature…</option>
     </select>
   </div>
+  <button class="btn-randomize" id="btn-randomize" disabled>&#x1F3B2; Randomize</button>
 </div>
 
 <div class="result-bar" id="result-bar"></div>
@@ -218,10 +235,11 @@
       .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  const creatureSel = document.getElementById('creature-select');
-  const actionSel   = document.getElementById('action-select');
-  const resultBar   = document.getElementById('result-bar');
-  const resultsEl   = document.getElementById('results');
+  const creatureSel  = document.getElementById('creature-select');
+  const actionSel    = document.getElementById('action-select');
+  const resultBar    = document.getElementById('result-bar');
+  const resultsEl    = document.getElementById('results');
+  const randomizeBtn = document.getElementById('btn-randomize');
 
   fetch('bestiary.json')
     .then(r => r.json())
@@ -241,12 +259,18 @@
         actionSel.appendChild(opt);
       }
 
-      creatureSel.disabled = false;
-      actionSel.disabled   = false;
+      creatureSel.disabled  = false;
+      actionSel.disabled    = false;
+      randomizeBtn.disabled = false;
 
       // Precompute Sets for fast overlap checks.
       const animalOidSets = animals.map(a => new Set(Object.keys(a.c)));
       const actionOidSets = actions.map(a => new Set(a.tags.flatMap(t => t.oids)));
+
+      // Slug helpers and lookup maps for URL routing.
+      const slugify = s => s.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      const actionBySlug = new Map(actions.map((a, i) => [slugify(a.l), i]));
+      const animalBySlug = new Map(animals.map((a, i) => [slugify(a.l), i]));
 
       function setsOverlap(a, b) {
         const [small, large] = a.size <= b.size ? [a, b] : [b, a];
@@ -270,6 +294,35 @@
           opt.disabled = actionSet !== null && !setsOverlap(animalOidSets[Number(opt.value)], actionSet);
         }
         if (creatureSel.selectedOptions[0]?.disabled) creatureSel.value = '';
+      }
+
+      // Update the URL hash from current dropdown values without triggering popstate.
+      function updateHash() {
+        const ai = actionSel.value;
+        const ci = creatureSel.value;
+        const newHash = ai !== '' && ci !== ''
+          ? '#' + slugify(actions[Number(ai)].l) + '/' + slugify(animals[Number(ci)].l)
+          : location.pathname + location.search;
+        if (location.href.split('#')[1] !== newHash.replace('#', '')) {
+          history.pushState(null, '', newHash);
+        }
+      }
+
+      // Parse the current hash and apply it to the dropdowns.
+      function applyHash() {
+        const parts = location.hash.slice(1).split('/');
+        const ai = actionBySlug.get(parts[0]);
+        const ci = animalBySlug.get(parts[1]);
+        if (ai !== undefined && ci !== undefined) {
+          actionSel.value   = ai;
+          creatureSel.value = ci;
+          updateCreatureDisabled(String(ai));
+          updateActionDisabled(String(ci));
+        } else {
+          actionSel.value   = '';
+          creatureSel.value = '';
+        }
+        render();
       }
 
       function render() {
@@ -346,8 +399,36 @@
         resultsEl.appendChild(grid);
       }
 
-      creatureSel.addEventListener('change', () => { updateActionDisabled(creatureSel.value); render(); });
-      actionSel.addEventListener('change',   () => { updateCreatureDisabled(actionSel.value);   render(); });
+      function randomize() {
+        const ai = Math.floor(Math.random() * actions.length);
+        const actionSet = actionOidSets[ai];
+        const valid = animals.map((_, i) => i).filter(i => setsOverlap(animalOidSets[i], actionSet));
+        const ci = valid[Math.floor(Math.random() * valid.length)];
+        actionSel.value   = ai;
+        creatureSel.value = ci;
+        updateCreatureDisabled(String(ai));
+        updateActionDisabled(String(ci));
+        updateHash();
+        render();
+      }
+
+      creatureSel.addEventListener('change', () => {
+        updateActionDisabled(creatureSel.value);
+        updateHash();
+        render();
+      });
+      actionSel.addEventListener('change', () => {
+        updateCreatureDisabled(actionSel.value);
+        updateHash();
+        render();
+      });
+      randomizeBtn.addEventListener('click', randomize);
+
+      // Browser back/forward navigation.
+      window.addEventListener('popstate', applyHash);
+
+      // Initial load — apply any hash already in the URL.
+      applyHash();
     })
     .catch(err => {
       resultsEl.innerHTML = `<p class="loading">Failed to load data: ${esc(err.message)}</p>`;

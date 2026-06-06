@@ -89,6 +89,8 @@ console.log(`  dist/index.html: ${(htmlBytes / 1024).toFixed(1)} KB`);
 
 console.log("Building bestiary.json…");
 
+const slugify = (s) => s.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+
 // Find the "animal" art tag and collect all descendants via BFS.
 const artTagById = new Map(artTagsRaw.map((t) => [t.id, t]));
 const animalRoot = artTagsRaw.find((t) => t.label === "animal");
@@ -234,7 +236,7 @@ for (const group of ACTION_GROUPS) {
   });
   if (tags.length === 0) continue;
   tags.forEach(({ oids }) => oids.forEach((oid) => allActionOids.add(oid)));
-  bestiaryActions.push({ l: group.l, tags });
+  bestiaryActions.push({ l: group.l, s: slugify(group.l), tags });
 }
 
 const OMIT_ANIMAL_IDS = new Set([
@@ -285,7 +287,7 @@ for (const childId of animalRoot.child_ids) {
   }
 
   if (Object.keys(cards).some((oid) => allActionOids.has(oid))) {
-    bestiaryAnimals.push({ l: childTag.label, u: childTag.uri, c: cards });
+    bestiaryAnimals.push({ l: childTag.label, s: slugify(childTag.label), u: childTag.uri, c: cards });
   }
 }
 bestiaryAnimals.sort((a, b) => a.l.localeCompare(b.l));
