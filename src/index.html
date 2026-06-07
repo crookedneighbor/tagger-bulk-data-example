@@ -258,7 +258,15 @@
       }
 
       .slide-hero a {
-        display: contents;
+        position: absolute;
+        inset: 0;
+      }
+      .slide-hero a:focus {
+        outline: none;
+      }
+      .slide-hero a:focus-visible img {
+        outline: 3px solid #d4a843;
+        outline-offset: 3px;
       }
 
       .slide-hero img {
@@ -294,6 +302,7 @@
         bottom: 6px;
         right: 0.75rem;
         pointer-events: none;
+        z-index: 3;
       }
 
       .slide-counter {
@@ -321,6 +330,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        z-index: 3;
       }
 
       .slide-hero:hover .slide-nav,
@@ -354,6 +364,7 @@
         width: 0;
         background: #d4a843;
         pointer-events: none;
+        z-index: 3;
       }
 
       .loading {

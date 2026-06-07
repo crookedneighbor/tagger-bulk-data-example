@@ -10,8 +10,8 @@ export function buildSlideshow(results) {
   const hero = document.createElement("div");
   hero.className = "slide-hero";
   hero.innerHTML = `
-    <a class="link-a" href="" target="_blank" rel="noopener"><img class="img-a" src="" alt="" draggable="false" style="opacity:0"></a>
-    ${count > 1 ? `<a class="link-b" href="" target="_blank" rel="noopener"><img class="img-b" src="" alt="" draggable="false" style="opacity:0"></a>` : ""}
+    <a class="link-a" href="" target="_blank" rel="noopener" tabindex="-1"><img class="img-a" src="" alt="" draggable="false" style="opacity:0"></a>
+    ${count > 1 ? `<a class="link-b" href="" target="_blank" rel="noopener" tabindex="-1"><img class="img-b" src="" alt="" draggable="false" style="opacity:0"></a>` : ""}
     <div class="slide-overlay">
       <span class="slide-counter" aria-live="polite" aria-atomic="true"></span>
     </div>
@@ -81,21 +81,27 @@ export function buildSlideshow(results) {
       frontImg.src = r.artUrl;
       frontImg.alt = r.alt;
       frontLink.href = r.scryfall;
+      frontLink.tabIndex = 0;
+      frontLink.style.zIndex = "2";
       if (backImg) {
         const next = results[(idx + 1) % count];
         backImg.src = next.artUrl;
         backImg.alt = next.alt;
         backLink.href = next.scryfall;
+        backLink.tabIndex = -1;
+        backLink.style.zIndex = "1";
       }
     } else {
       backImg.src = r.artUrl;
       backImg.alt = r.alt;
       backLink.href = r.scryfall;
-      backImg.style.zIndex = "2";
-      frontImg.style.zIndex = "1";
+      backLink.style.zIndex = "2";
+      frontLink.style.zIndex = "1";
       applyTransition(frontImg, backImg, gen);
       [frontImg, backImg] = [backImg, frontImg];
       [frontLink, backLink] = [backLink, frontLink];
+      frontLink.tabIndex = 0;
+      backLink.tabIndex = -1;
     }
 
     if (count > 1) animateProgress();
