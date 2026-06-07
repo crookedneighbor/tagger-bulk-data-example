@@ -7,7 +7,7 @@ vi.mock("./action-groups.mjs", () => ({
 
 const artTagsRaw = [
   {
-    id: "animal-root",
+    id: "32e84266-800f-427c-9b9e-d0138c7491db",
     label: "animal",
     uri: "",
     child_ids: ["wolf-id"],
@@ -82,7 +82,7 @@ describe("buildBestiary", () => {
   it("skips illustrations with a weak tagging weight", () => {
     const artWithWeak = [
       {
-        id: "animal-root",
+        id: "32e84266-800f-427c-9b9e-d0138c7491db",
         label: "animal",
         uri: "",
         child_ids: ["wolf-id"],
@@ -136,7 +136,7 @@ describe("buildBestiary", () => {
     // reptile (da814be7) is in EXPAND_ANIMAL_IDS
     const artWithReptile = [
       {
-        id: "animal-root",
+        id: "32e84266-800f-427c-9b9e-d0138c7491db",
         label: "animal",
         uri: "",
         child_ids: ["da814be7-c427-44c8-8f43-2428c4c0b967"],
@@ -183,7 +183,7 @@ describe("buildBestiary", () => {
     // non-fantasy animal (16c0b648) is in OMIT_ANIMAL_IDS
     const artWithOmitted = [
       {
-        id: "animal-root",
+        id: "32e84266-800f-427c-9b9e-d0138c7491db",
         label: "animal",
         uri: "",
         child_ids: ["wolf-id", "16c0b648-c78b-4d16-b476-3f08196d1966"],
@@ -306,7 +306,7 @@ describe("buildBestiary", () => {
   it("sorts animals alphabetically", () => {
     const artWithTwo = [
       {
-        id: "animal-root",
+        id: "32e84266-800f-427c-9b9e-d0138c7491db",
         label: "animal",
         uri: "",
         child_ids: ["zebra-id", "wolf-id"],
