@@ -411,33 +411,37 @@
     </header>
 
     <main>
-    <div class="controls">
-      <div class="control-group">
-        <label for="action-select">Action</label>
-        <select id="action-select" disabled>
-          <option value="">Choose an action…</option>
-        </select>
+      <div class="controls">
+        <div class="control-group">
+          <label for="action-select">Action</label>
+          <select id="action-select" disabled>
+            <option value="">Choose an action…</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="creature-select">Animal</label>
+          <select id="creature-select" disabled>
+            <option value="">Choose an animal…</option>
+          </select>
+        </div>
+        <button class="btn-randomize" id="btn-randomize" disabled>
+          Randomize
+        </button>
       </div>
-      <div class="control-group">
-        <label for="creature-select">Animal</label>
-        <select id="creature-select" disabled>
-          <option value="">Choose an animal…</option>
-        </select>
+
+      <div
+        class="result-bar"
+        id="result-bar"
+        aria-live="polite"
+        aria-atomic="true"
+      ></div>
+
+      <div id="results">
+        <div class="placeholder">
+          <span class="icon" aria-hidden="true">🐾</span>
+          <span>Select an action and animal to begin</span>
+        </div>
       </div>
-      <button class="btn-randomize" id="btn-randomize" disabled>
-        Randomize
-      </button>
-    </div>
-
-    <div class="result-bar" id="result-bar" aria-live="polite" aria-atomic="true"></div>
-
-    <div id="results">
-      <div class="placeholder">
-        <span class="icon" aria-hidden="true">🐾</span>
-        <span>Select an action and animal to begin</span>
-      </div>
-    </div>
-
     </main>
     <script type="module" src="js/app.js"></script>
   </body>

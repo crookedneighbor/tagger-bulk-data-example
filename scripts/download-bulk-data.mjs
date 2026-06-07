@@ -7,11 +7,7 @@ const { version } = JSON.parse(readFileSync("package.json", "utf8"));
 
 const BULK_DATA_API = "https://api.scryfall.com/bulk-data";
 const OUT_DIR = "data";
-const TYPES = new Set([
-  "unique_artwork",
-  "art_tags",
-  "oracle_tags",
-]);
+const TYPES = new Set(["unique_artwork", "art_tags", "oracle_tags"]);
 const HEADERS = { "User-Agent": `tagger-bulk-data-example/${version}` };
 
 mkdirSync(OUT_DIR, { recursive: true });

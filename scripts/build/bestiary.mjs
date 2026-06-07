@@ -22,7 +22,7 @@ const slugify = (s) =>
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9-]/g, "");
 
-function bfsIds(startIds, tagById) {
+function collectChildTagIds(startIds, tagById) {
   const result = new Set();
   const queue = [...startIds];
   while (queue.length) {
@@ -55,7 +55,6 @@ export function buildBestiary(
   // Collect every descendant of the "character" tag so named characters
   // (e.g. Ilharg, Yorion) that also appear under an animal tag can be excluded.
   const characterRoot = artTagsRaw.find((t) => t.label === "character");
-  bfsIds(characterRoot.child_ids, artTagById); // result unused; kept for future filtering
 
   const bestiaryActions = [];
   const allActionOids = new Set();
@@ -63,7 +62,7 @@ export function buildBestiary(
     const tags = group.ids.flatMap((id) => {
       const tag = oracleTagById.get(id);
       if (!tag) return [];
-      const subtreeIds = bfsIds([id], oracleTagById);
+      const subtreeIds = collectChildTagIds([id], oracleTagById);
       const oids = [
         ...new Set(
           [...subtreeIds].flatMap((sid) =>
@@ -77,7 +76,9 @@ export function buildBestiary(
           const ct = oracleTagById.get(sid);
           return ct ? [{ label: ct.label, uri: ct.uri }] : [];
         });
-      return oids.length ? [{ label: tag.label, uri: tag.uri, oids, children }] : [];
+      return oids.length
+        ? [{ label: tag.label, uri: tag.uri, oids, children }]
+        : [];
     });
     if (tags.length === 0) continue;
     tags.forEach(({ oids }) => oids.forEach((oid) => allActionOids.add(oid)));
@@ -99,7 +100,7 @@ export function buildBestiary(
     const childTag = artTagById.get(childId);
     if (!childTag || OMIT_ANIMAL_IDS.has(childId)) continue;
 
-    const subtreeIds = bfsIds([childId], artTagById);
+    const subtreeIds = collectChildTagIds([childId], artTagById);
 
     const cards = {};
     const seenIlls = new Set();

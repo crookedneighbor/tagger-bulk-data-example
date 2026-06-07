@@ -19,11 +19,9 @@ function runBuild(changedFile) {
   if (changedFile) console.log(`\n[watch] changed: ${changedFile}`);
   console.log("[watch] building…");
 
-  const child = spawn(
-    "node",
-    ["scripts/build/index.mjs", ...buildArgs],
-    { stdio: "inherit" },
-  );
+  const child = spawn("node", ["scripts/build/index.mjs", ...buildArgs], {
+    stdio: "inherit",
+  });
 
   child.on("close", (code) => {
     building = false;
