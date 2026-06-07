@@ -10,14 +10,6 @@ const makeCard = (oracle_id, name, illustration_id, image_uris) => ({
 });
 
 describe("buildIndexes", () => {
-  const oracleCardsRaw = [
-    {
-      oracle_id: "oid-1",
-      name: "Gray Wolf",
-      scryfall_uri: "https://scryfall.com/1",
-    },
-  ];
-
   const uniqueArtwork = [
     makeCard("oid-1", "Gray Wolf", "ill-1", {
       art_crop: "https://img/art.jpg",
@@ -25,47 +17,36 @@ describe("buildIndexes", () => {
     }),
   ];
 
-  it("builds cardByOracleId", () => {
-    const { cardByOracleId } = buildIndexes({ oracleCardsRaw, uniqueArtwork });
+  it("builds cardByOracleId from uniqueArtwork", () => {
+    const { cardByOracleId } = buildIndexes({ uniqueArtwork });
     expect(cardByOracleId.get("oid-1")).toEqual({
       name: "Gray Wolf",
-      uri: "https://scryfall.com/1",
+      uri: "https://scryfall.com/card/oid-1",
     });
   });
 
   it("builds artByIllustrationId from art_crop", () => {
-    const { artByIllustrationId } = buildIndexes({
-      oracleCardsRaw,
-      uniqueArtwork,
-    });
+    const { artByIllustrationId } = buildIndexes({ uniqueArtwork });
     expect(artByIllustrationId.get("ill-1")).toBe("https://img/art.jpg");
   });
 
   it("builds cardImgByIllustrationId from normal image", () => {
-    const { cardImgByIllustrationId } = buildIndexes({
-      oracleCardsRaw,
-      uniqueArtwork,
-    });
+    const { cardImgByIllustrationId } = buildIndexes({ uniqueArtwork });
     expect(cardImgByIllustrationId.get("ill-1")).toBe("https://img/normal.jpg");
   });
 
   it("builds scryfallByIllustrationId from the artwork's scryfall_uri", () => {
-    const { scryfallByIllustrationId } = buildIndexes({
-      oracleCardsRaw,
-      uniqueArtwork,
-    });
-    // scryfall_uri comes from uniqueArtwork, not oracleCardsRaw
+    const { scryfallByIllustrationId } = buildIndexes({ uniqueArtwork });
     expect(scryfallByIllustrationId.get("ill-1")).toBeDefined();
   });
 
   it("builds illToOracle", () => {
-    const { illToOracle } = buildIndexes({ oracleCardsRaw, uniqueArtwork });
+    const { illToOracle } = buildIndexes({ uniqueArtwork });
     expect(illToOracle.get("ill-1")).toBe("oid-1");
   });
 
   it("skips cards with no illustration_id", () => {
     const result = buildIndexes({
-      oracleCardsRaw: [],
       uniqueArtwork: [{ oracle_id: "x", name: "X", scryfall_uri: "" }],
     });
     expect(result.illToOracle.size).toBe(0);
@@ -73,7 +54,6 @@ describe("buildIndexes", () => {
 
   it("skips cards from sets in SKIP_SETS (e.g. dbl)", () => {
     const result = buildIndexes({
-      oracleCardsRaw: [],
       uniqueArtwork: [
         makeCard("oid-dbl", "Some Card", "ill-dbl", {
           art_crop: "https://img/dbl-art.jpg",
@@ -102,7 +82,7 @@ describe("buildIndexes", () => {
         ],
       },
     ];
-    const result = buildIndexes({ oracleCardsRaw: [], uniqueArtwork: artwork });
+    const result = buildIndexes({ uniqueArtwork: artwork });
     expect(result.artByIllustrationId.get("ill-2")).toBe(
       "https://img/face-art.jpg",
     );

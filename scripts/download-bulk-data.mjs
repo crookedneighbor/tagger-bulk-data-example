@@ -8,7 +8,6 @@ const { version } = JSON.parse(readFileSync("package.json", "utf8"));
 const BULK_DATA_API = "https://api.scryfall.com/bulk-data";
 const OUT_DIR = "data";
 const TYPES = new Set([
-  "oracle_cards",
   "unique_artwork",
   "art_tags",
   "oracle_tags",
