@@ -50,11 +50,7 @@ export function buildBestiary(
   const artTagById = new Map(artTagsRaw.map((t) => [t.id, t]));
   const oracleTagById = new Map(oracleTagsRaw.map((t) => [t.id, t]));
 
-  const animalRoot = artTagsRaw.find((t) => t.label === "animal");
-
-  // Collect every descendant of the "character" tag so named characters
-  // (e.g. Ilharg, Yorion) that also appear under an animal tag can be excluded.
-  const characterRoot = artTagsRaw.find((t) => t.label === "character");
+  const animalRoot = artTagById.get("32e84266-800f-427c-9b9e-d0138c7491db");
 
   const bestiaryActions = [];
   const allActionOids = new Set();
@@ -136,6 +132,7 @@ export function buildBestiary(
     }
   }
   bestiaryAnimals.sort((a, b) => a.l.localeCompare(b.l));
+  bestiaryActions.sort((a, b) => a.l.localeCompare(b.l));
 
   return {
     animals: bestiaryAnimals,
