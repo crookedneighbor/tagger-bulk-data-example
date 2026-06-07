@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { buildSlideshow } from "./slideshow.js";
 
 const makeResult = (n) => ({
@@ -10,8 +10,13 @@ const makeResult = (n) => ({
   note: "",
 });
 
+beforeEach(() => {
+  vi.stubGlobal("matchMedia", () => ({ matches: false }));
+});
+
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe("buildSlideshow", () => {
@@ -23,8 +28,15 @@ describe("buildSlideshow", () => {
     destroy();
   });
 
-  it("contains two image slots", () => {
+  it("contains only one image slot for a single result", () => {
     const { element, destroy } = buildSlideshow([makeResult(1)]);
+    expect(element.querySelector(".img-a")).not.toBeNull();
+    expect(element.querySelector(".img-b")).toBeNull();
+    destroy();
+  });
+
+  it("contains two image slots for multiple results", () => {
+    const { element, destroy } = buildSlideshow([makeResult(1), makeResult(2)]);
     expect(element.querySelector(".img-a")).not.toBeNull();
     expect(element.querySelector(".img-b")).not.toBeNull();
     destroy();

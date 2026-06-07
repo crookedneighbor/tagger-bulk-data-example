@@ -3,7 +3,7 @@ import { writeFileSync, mkdirSync } from "fs";
 const toTitle = (s) => s.replace(/\b\w/g, (c) => c.toUpperCase());
 const escAttr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 
-export function buildComboPages({ animals, actions, cards }, template) {
+export function buildComboPages({ animals, actions }, template) {
   const comboBase = template.replace(
     /(<head[^>]*>)/i,
     '$1\n  <base href="../">',
@@ -33,14 +33,14 @@ export function buildComboPages({ animals, actions, cards }, template) {
       let firstBg = null;
       let firstImg = null;
       let firstScryfall = null;
-      let firstName = null;
+      let firstAlt = null;
       for (const [oid, items] of Object.entries(animal.c)) {
         if (!actionOids.has(oid)) continue;
         if (items.length > 0) {
           firstBg = items[0].bg ?? null;
           firstImg = items[0].a ?? null;
           firstScryfall = items[0].s ?? null;
-          firstName = cards[oid]?.n ?? "";
+          firstAlt = items[0].alt ?? "";
           break;
         }
       }
@@ -52,7 +52,7 @@ export function buildComboPages({ animals, actions, cards }, template) {
         ? `\n    <meta property="og:image" content="${firstBg}" />\n    <meta property="og:image:alt" content="${label}" />`
         : "";
       const resultsHtml = firstImg
-        ? `<div id="results">\n      <div class="slide-hero"><a href="${escAttr(firstScryfall ?? "")}" target="_blank" rel="noopener"><img src="${firstImg}" alt="${escAttr(firstName)}" draggable="false"></a></div>\n    </div>`
+        ? `<div id="results">\n      <div class="slide-hero"><a href="${escAttr(firstScryfall ?? "")}" target="_blank" rel="noopener"><img src="${firstImg}" alt="${escAttr(firstAlt)}" draggable="false"></a></div>\n    </div>`
         : `<div id="results"></div>`;
 
       const htmlAttrs = firstBg

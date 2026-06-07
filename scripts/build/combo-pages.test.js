@@ -32,14 +32,14 @@ const makeBestiary = () => ({
           {
             a: "https://img/card.jpg",
             bg: "https://img/bg.jpg",
-            s: "https://scryfall.com/1",
+            s: "https://tagger.scryfall.com/card/tst/1",
+            alt: "Wolves' Pride (tst/1)",
           },
         ],
       },
     },
   ],
   actions: [{ l: "eating", s: "eating", tags: [{ oids: ["oid-1"] }] }],
-  cards: { "oid-1": { n: "Wolves' Pride", s: "https://scryfall.com/1" } },
 });
 
 describe("buildComboPages", () => {
