@@ -65,8 +65,7 @@ console.log("Building bestiary.json…");
 const bestiary = buildBestiary(raw.artTagsRaw, raw.oracleTagsRaw, indexes);
 console.log(
   `  animals: ${bestiary.animals.length}, ` +
-    `actions: ${bestiary.actions.length}, ` +
-    `cards: ${Object.keys(bestiary.cards).length}`,
+    `actions: ${bestiary.actions.length}`,
 );
 
 writeFileSync("dist/bestiary.json", JSON.stringify(bestiary));

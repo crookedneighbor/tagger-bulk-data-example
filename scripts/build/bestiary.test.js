@@ -46,6 +46,7 @@ const indexes = {
   artByIllustrationId: new Map([["ill-1", "https://img/art.jpg"]]),
   cardImgByIllustrationId: new Map([["ill-1", "https://img/normal.jpg"]]),
   scryfallByIllustrationId: new Map([["ill-1", "https://scryfall.com/card/1"]]),
+  altByIllustrationId: new Map([["ill-1", "Wolves' Pride (tst/1)"]]),
   illToOracle: new Map([["ill-1", "oid-1"]]),
 };
 
@@ -72,13 +73,10 @@ describe("buildBestiary", () => {
     expect(wolf.c["oid-1"][0].a).toBe("https://img/normal.jpg");
   });
 
-  it("populates the cards lookup", () => {
+  it("stores alt text on items from altByIllustrationId", () => {
     const result = buildBestiary(artTagsRaw, oracleTagsRaw, indexes);
 
-    expect(result.cards["oid-1"]).toEqual({
-      n: "Wolves' Pride",
-      s: "https://scryfall.com/1",
-    });
+    expect(result.animals[0].c["oid-1"][0].alt).toBe("Wolves' Pride (tst/1)");
   });
 
   it("skips illustrations with a weak tagging weight", () => {

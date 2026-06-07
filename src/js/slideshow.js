@@ -4,15 +4,16 @@ import { applyTransition, nextGen } from "./transitions.js";
 const SLIDE_INTERVAL = 4000;
 
 export function buildSlideshow(results) {
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const count = results.length;
 
   const hero = document.createElement("div");
   hero.className = "slide-hero";
   hero.innerHTML = `
     <a class="link-a" href="" target="_blank" rel="noopener"><img class="img-a" src="" alt="" draggable="false" style="opacity:0"></a>
-    <a class="link-b" href="" target="_blank" rel="noopener"><img class="img-b" src="" alt="" draggable="false" style="opacity:0"></a>
+    ${count > 1 ? `<a class="link-b" href="" target="_blank" rel="noopener"><img class="img-b" src="" alt="" draggable="false" style="opacity:0"></a>` : ""}
     <div class="slide-overlay">
-      <span class="slide-counter"></span>
+      <span class="slide-counter" aria-live="polite" aria-atomic="true"></span>
     </div>
     ${
       count > 1
@@ -45,6 +46,7 @@ export function buildSlideshow(results) {
   function animateProgress() {
     progressEl.style.transition = "none";
     progressEl.style.width = "0";
+    if (reducedMotion.matches) return;
     requestAnimationFrame(() =>
       requestAnimationFrame(() => {
         progressEl.style.transition = `width ${SLIDE_INTERVAL}ms linear`;
@@ -69,7 +71,7 @@ export function buildSlideshow(results) {
         filter: "",
         clipPath: "",
       });
-      Object.assign(backImg.style, {
+      if (backImg) Object.assign(backImg.style, {
         transition: "none",
         opacity: "0",
         transform: "",
@@ -77,11 +79,11 @@ export function buildSlideshow(results) {
         clipPath: "",
       });
       frontImg.src = r.artUrl;
-      frontImg.alt = r.name;
+      frontImg.alt = r.alt;
       frontLink.href = r.scryfall;
     } else {
       backImg.src = r.artUrl;
-      backImg.alt = r.name;
+      backImg.alt = r.alt;
       backLink.href = r.scryfall;
       backImg.style.zIndex = "2";
       frontImg.style.zIndex = "1";
@@ -95,13 +97,14 @@ export function buildSlideshow(results) {
 
   function startTimer() {
     clearInterval(timer);
+    if (reducedMotion.matches) return;
     timer = setInterval(() => {
       if (!paused) showSlide(idx + 1);
     }, SLIDE_INTERVAL);
   }
 
   if (count > 1) {
-    hero.addEventListener("mouseenter", () => {
+    const freezeProgress = () => {
       paused = true;
       progressEl.style.transition = "none";
       progressEl.style.width =
@@ -109,11 +112,17 @@ export function buildSlideshow(results) {
           hero.getBoundingClientRect().width) *
           100 +
         "%";
-    });
-    hero.addEventListener("mouseleave", () => {
+    };
+    const resumeProgress = () => {
       paused = false;
       animateProgress();
       startTimer();
+    };
+    hero.addEventListener("mouseenter", freezeProgress);
+    hero.addEventListener("mouseleave", resumeProgress);
+    hero.addEventListener("focusin", freezeProgress);
+    hero.addEventListener("focusout", (e) => {
+      if (!hero.contains(e.relatedTarget)) resumeProgress();
     });
     prevBtn.addEventListener("click", () => {
       showSlide(idx - 1);

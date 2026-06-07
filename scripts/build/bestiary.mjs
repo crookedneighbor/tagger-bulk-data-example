@@ -43,6 +43,7 @@ export function buildBestiary(
     artByIllustrationId,
     cardImgByIllustrationId,
     scryfallByIllustrationId,
+    altByIllustrationId,
     illToOracle,
   },
 ) {
@@ -115,7 +116,12 @@ export function buildBestiary(
         const uri = scryfallByIllustrationId.get(tg.illustration_id);
         if (!oid || !cardImg || !uri) continue;
         if (!cards[oid]) cards[oid] = [];
-        cards[oid].push({ a: cardImg, bg: artCrop ?? cardImg, s: uri });
+        cards[oid].push({
+          a: cardImg,
+          bg: artCrop ?? cardImg,
+          s: uri,
+          alt: altByIllustrationId.get(tg.illustration_id) ?? "",
+        });
       }
     }
 
@@ -130,15 +136,8 @@ export function buildBestiary(
   }
   bestiaryAnimals.sort((a, b) => a.l.localeCompare(b.l));
 
-  const bestiaryCards = {};
-  for (const oid of allActionOids) {
-    const card = cardByOracleId.get(oid);
-    if (card) bestiaryCards[oid] = { n: card.name, s: card.uri };
-  }
-
   return {
     animals: bestiaryAnimals,
     actions: bestiaryActions,
-    cards: bestiaryCards,
   };
 }

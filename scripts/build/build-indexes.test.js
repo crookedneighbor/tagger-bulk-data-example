@@ -44,6 +44,11 @@ describe("buildIndexes", () => {
     );
   });
 
+  it("builds altByIllustrationId as 'Name (set/cn)'", () => {
+    const { altByIllustrationId } = buildIndexes({ uniqueArtwork });
+    expect(altByIllustrationId.get("ill-1")).toBe("Gray Wolf (tst/1)");
+  });
+
   it("builds illToOracle", () => {
     const { illToOracle } = buildIndexes({ uniqueArtwork });
     expect(illToOracle.get("ill-1")).toBe("oid-1");

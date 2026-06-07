@@ -16,7 +16,7 @@ window.addEventListener("resize", fitH1);
 
 fetch("bestiary.json")
   .then((r) => r.json())
-  .then(({ animals, actions, cards }) => {
+  .then(({ animals, actions }) => {
     const {
       animalOidSets,
       actionOidSets,
@@ -50,7 +50,7 @@ fetch("bestiary.json")
         resultBar.innerHTML = "";
         resultsEl.innerHTML = `
           <div class="placeholder">
-            <span class="icon">🐾</span>
+            <span class="icon" aria-hidden="true">🐾</span>
             <span>Select an action and animal to begin</span>
           </div>`;
         return;
@@ -82,15 +82,13 @@ fetch("bestiary.json")
       const results = [];
       for (const [oid, items] of Object.entries(animal.c)) {
         if (!actionOids.has(oid)) continue;
-        const card = cards[oid];
-        if (!card) continue;
         const note = (oidLabels[oid] ?? []).join(", ");
         for (const item of items) {
           results.push({
             oid,
             artUrl: item.a,
             bg: item.bg,
-            name: card.n,
+            alt: item.alt,
             scryfall: item.s,
             note,
           });
@@ -102,7 +100,7 @@ fetch("bestiary.json")
         resultBar.innerHTML = "";
         resultsEl.innerHTML = `
           <div class="empty">
-            <span class="icon">🔍</span>
+            <span class="icon" aria-hidden="true">🔍</span>
             <span>No cards found with <strong><a href="${esc(animal.u)}" target="_blank" rel="noopener noreferrer">${esc(animal.l)}</a></strong> in the art that are also tagged <strong>${actionTagLabels}</strong></span>
           </div>`;
         return;
