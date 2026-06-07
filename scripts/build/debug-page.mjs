@@ -48,7 +48,8 @@ export function buildDebugPage({ animals, actions, cards }) {
     summary:hover { background: #2a2a3e; }
     .count { color: #9a9a9a; font-size: 0.85em; margin-left: 0.5rem; }
     .prints { display: flex; flex-wrap: wrap; gap: 6px; padding: 0.75rem 0.5rem; }
-    .prints a img { height: 200px; border-radius: 3px; display: block; }
+    .prints a { flex-grow: 1 }
+    .prints a img { height: 200px; width: 100%; object-fit: cover; border-radius: 3px; display: block; }
     .prints a:hover img { outline: 2px solid #d4a843; }
   </style>
 </head>
