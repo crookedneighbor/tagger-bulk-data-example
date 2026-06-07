@@ -42,8 +42,9 @@ fetch("bestiary.json")
       const ai = actionSel.value;
 
       if (ci === "" || ai === "") {
+        const wasActive = document.documentElement.dataset.state === "active";
         document.documentElement.dataset.state = "home";
-        updateBackground(HOME_BG);
+        if (wasActive) updateBackground(HOME_BG);
         popH1("Bestiary");
         document.title = "MTG Bestiary";
         resultBar.innerHTML = "";
