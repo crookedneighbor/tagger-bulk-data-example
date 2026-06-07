@@ -290,7 +290,10 @@ describe("buildBestiary", () => {
     const tag = result.actions[0].tags[0];
 
     expect(tag.children).toEqual([
-      { label: "gives devour", uri: "https://tagger.scryfall.com/tags/card/gives-devour" },
+      {
+        label: "gives devour",
+        uri: "https://tagger.scryfall.com/tags/card/gives-devour",
+      },
     ]);
   });
 

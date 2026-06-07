@@ -2,7 +2,6 @@ const SKIP_SETS = new Set([
   "dbl", // Double Feature - B&W versions of illustrations already used in the app
 ]);
 
-
 export function buildIndexes({ uniqueArtwork }) {
   const cardByOracleId = new Map();
   const artByIllustrationId = new Map();
@@ -15,7 +14,10 @@ export function buildIndexes({ uniqueArtwork }) {
     if (!card.illustration_id) continue;
     if (SKIP_SETS.has(card.set)) continue;
     if (card.oracle_id && card.name)
-      cardByOracleId.set(card.oracle_id, { name: card.name, uri: card.scryfall_uri });
+      cardByOracleId.set(card.oracle_id, {
+        name: card.name,
+        uri: card.scryfall_uri,
+      });
     const artCrop =
       card.image_uris?.art_crop ?? card.card_faces?.[0]?.image_uris?.art_crop;
     const cardImg =

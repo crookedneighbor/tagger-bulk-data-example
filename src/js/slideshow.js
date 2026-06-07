@@ -71,13 +71,14 @@ export function buildSlideshow(results) {
         filter: "",
         clipPath: "",
       });
-      if (backImg) Object.assign(backImg.style, {
-        transition: "none",
-        opacity: "0",
-        transform: "",
-        filter: "",
-        clipPath: "",
-      });
+      if (backImg)
+        Object.assign(backImg.style, {
+          transition: "none",
+          opacity: "0",
+          transform: "",
+          filter: "",
+          clipPath: "",
+        });
       frontImg.src = r.artUrl;
       frontImg.alt = r.alt;
       frontLink.href = r.scryfall;
