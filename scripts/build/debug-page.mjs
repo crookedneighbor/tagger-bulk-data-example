@@ -1,21 +1,10 @@
-function scryfallToTagger(scryfallUri) {
-  // https://scryfall.com/card/set/num/name?... → https://tagger.scryfall.com/card/set/num
-  try {
-    const url = new URL(scryfallUri);
-    const [, , set, num] = url.pathname.split("/");
-    return `https://tagger.scryfall.com/card/${set}/${num}`;
-  } catch {
-    return scryfallUri;
-  }
-}
-
 export function buildDebugPage({ animals, actions, cards }) {
   const sections = animals.map((animal) => {
     const prints = Object.entries(animal.c).flatMap(([oid, items]) =>
       items.map((item) => ({
         name: cards[oid]?.n ?? "",
         artUrl: item.bg ?? item.a,
-        taggerUrl: scryfallToTagger(item.s),
+        taggerUrl: item.s,
       })),
     );
 

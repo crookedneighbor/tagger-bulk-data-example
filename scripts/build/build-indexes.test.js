@@ -4,7 +4,9 @@ import { buildIndexes } from "./build-indexes.mjs";
 const makeCard = (oracle_id, name, illustration_id, image_uris) => ({
   oracle_id,
   name,
-  scryfall_uri: `https://scryfall.com/card/${oracle_id}`,
+  set: "tst",
+  collector_number: "1",
+  scryfall_uri: `https://scryfall.com/card/tst/1/${name.toLowerCase().replace(/\s/g, "-")}`,
   illustration_id,
   image_uris,
 });
@@ -21,7 +23,7 @@ describe("buildIndexes", () => {
     const { cardByOracleId } = buildIndexes({ uniqueArtwork });
     expect(cardByOracleId.get("oid-1")).toEqual({
       name: "Gray Wolf",
-      uri: "https://scryfall.com/card/oid-1",
+      uri: "https://scryfall.com/card/tst/1/gray-wolf",
     });
   });
 
@@ -35,9 +37,11 @@ describe("buildIndexes", () => {
     expect(cardImgByIllustrationId.get("ill-1")).toBe("https://img/normal.jpg");
   });
 
-  it("builds scryfallByIllustrationId from the artwork's scryfall_uri", () => {
+  it("builds scryfallByIllustrationId as a tagger URL from set and collector_number", () => {
     const { scryfallByIllustrationId } = buildIndexes({ uniqueArtwork });
-    expect(scryfallByIllustrationId.get("ill-1")).toBeDefined();
+    expect(scryfallByIllustrationId.get("ill-1")).toBe(
+      "https://tagger.scryfall.com/card/tst/1",
+    );
   });
 
   it("builds illToOracle", () => {
