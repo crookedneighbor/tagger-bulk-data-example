@@ -81,6 +81,12 @@ export function buildSlideshow(results) {
       frontImg.src = r.artUrl;
       frontImg.alt = r.alt;
       frontLink.href = r.scryfall;
+      if (backImg) {
+        const next = results[(idx + 1) % count];
+        backImg.src = next.artUrl;
+        backImg.alt = next.alt;
+        backLink.href = next.scryfall;
+      }
     } else {
       backImg.src = r.artUrl;
       backImg.alt = r.alt;
