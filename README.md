@@ -26,21 +26,7 @@ The app is built on every push to main as well as once a day. That means that th
 
 It was intentionally built without an established frontend framework. This has the result of having some messy code to approximate some things we would have gotten for free if using a framework, but avoids any framework specific code obscuring the example.
 
-## Limitations of Tagger Data
-
-For the animal tags, the app finds all the direct children of the animal tag. 
-
-This worked great except that named characters and categories of animals were showing up in the list. It felt weird to let people select `Ajani` or `non-fantasy animal`, so 
-
-In addition, some of the direct children were too broad. Reptile and Amphibian had to be expanded into their direct children.
-
-We omit the `dbl` set because it was causing duplicate cards where the only difference was that the illustration was in grayscale.
-
-For these manipulations we use the tag uuid, rather than the label, so that if the tag is renamed in the future, we have a stable id to rely on.
-
-We omit taggings with a `weak` weight - but sometimes the art prominently features an animal, but it more prominently features a goblin.
-
-Keywords like flying, lots of birds with `flying` aren't represented, because they don't have one of the flying tags.
+It is intentionally contrived. It is an example app that uses both art tags and oracle tags. In practice, you're probably only using one set at a time.
 
 ## Running locally
 
