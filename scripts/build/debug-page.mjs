@@ -1,8 +1,8 @@
-export function buildDebugPage({ animals, actions, cards }) {
+export function buildDebugPage({ animals, actions }) {
   const sections = animals.map((animal) => {
-    const prints = Object.entries(animal.c).flatMap(([oid, items]) =>
+    const prints = Object.values(animal.c).flatMap((items) =>
       items.map((item) => ({
-        name: cards[oid]?.n ?? "",
+        name: item.alt ?? "",
         artUrl: item.bg ?? item.a,
         taggerUrl: item.s,
       })),
@@ -44,7 +44,7 @@ export function buildDebugPage({ animals, actions, cards }) {
 </head>
 <body>
   <h1>Debug</h1>
-  <p style="color:#9a9a9a">${animals.length} animals · ${Object.keys(cards).length} cards</p>
+  <p style="color:#9a9a9a">${animals.length} animals</p>
   ${sections.join("")}
 </body>
 </html>`;
