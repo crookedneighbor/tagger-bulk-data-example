@@ -74,29 +74,38 @@ describe("buildIndexes", () => {
     expect(result.artByIllustrationId.size).toBe(0);
   });
 
-  it("falls back to card_faces image when top-level image_uris is absent", () => {
+  it("indexes each face of a double-faced card by its own illustration_id", () => {
     const artwork = [
       {
-        oracle_id: "oid-2",
-        name: "Split Card",
-        scryfall_uri: "https://scryfall.com/2",
-        illustration_id: "ill-2",
+        oracle_id: "oid-dfc",
+        name: "Werewolf // Wolf",
+        set: "tst",
+        collector_number: "2",
+        scryfall_uri: "https://scryfall.com/card/tst/2/werewolf",
+        // no top-level illustration_id — DFC pattern
         card_faces: [
           {
+            illustration_id: "ill-front",
             image_uris: {
-              art_crop: "https://img/face-art.jpg",
-              normal: "https://img/face-normal.jpg",
+              art_crop: "https://img/front-art.jpg",
+              normal: "https://img/front-normal.jpg",
+            },
+          },
+          {
+            illustration_id: "ill-back",
+            image_uris: {
+              art_crop: "https://img/back-art.jpg",
+              normal: "https://img/back-normal.jpg",
             },
           },
         ],
       },
     ];
     const result = buildIndexes({ uniqueArtwork: artwork });
-    expect(result.artByIllustrationId.get("ill-2")).toBe(
-      "https://img/face-art.jpg",
-    );
-    expect(result.cardImgByIllustrationId.get("ill-2")).toBe(
-      "https://img/face-normal.jpg",
-    );
+    expect(result.artByIllustrationId.get("ill-front")).toBe("https://img/front-art.jpg");
+    expect(result.artByIllustrationId.get("ill-back")).toBe("https://img/back-art.jpg");
+    expect(result.cardImgByIllustrationId.get("ill-front")).toBe("https://img/front-normal.jpg");
+    expect(result.illToOracle.get("ill-front")).toBe("oid-dfc");
+    expect(result.illToOracle.get("ill-back")).toBe("oid-dfc");
   });
 });
