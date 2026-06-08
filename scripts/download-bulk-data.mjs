@@ -18,13 +18,8 @@ const index = await fetch(BULK_DATA_API, { headers: HEADERS }).then((r) =>
 );
 const entries = index.data.filter((e) => TYPES.has(e.type));
 
-if (entries.length !== TYPES.size) {
-  const found = new Set(entries.map((e) => e.type));
-  const missing = [...TYPES].filter((t) => !found.has(t));
-  throw new Error(`Missing bulk data types: ${missing.join(", ")}`);
-}
-
-for (const { type, name, download_uri } of entries) {
+for (const entry of entries) {
+  const { type, name, download_uri } = entry;
   const outPath = path.join(OUT_DIR, `${type}.json`);
   console.log(`Downloading ${name} → ${outPath}`);
   const res = await fetch(download_uri, { headers: HEADERS });
