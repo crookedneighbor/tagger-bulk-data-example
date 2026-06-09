@@ -23,6 +23,16 @@ export function buildIndexes({ uniqueArtwork }) {
 
     for (const face of faces) {
       if (!face.illustration_id) continue;
+
+      const oracleId = card.oracle_id ?? face.oracle_id;
+
+      // Reversible cards have oracle_id and name on each face rather than the top-level card.
+      if (!card.oracle_id && face.oracle_id && face.name)
+        cardByOracleId.set(face.oracle_id, {
+          name: face.name,
+          uri: card.scryfall_uri,
+        });
+
       const artCrop = face.image_uris?.art_crop;
       const cardImg = face.image_uris?.normal;
       if (artCrop) artByIllustrationId.set(face.illustration_id, artCrop);
@@ -32,13 +42,14 @@ export function buildIndexes({ uniqueArtwork }) {
           face.illustration_id,
           `https://tagger.scryfall.com/card/${card.set}/${card.collector_number}`,
         );
-        if (card.name)
+        const name = card.name ?? face.name;
+        if (name)
           altByIllustrationId.set(
             face.illustration_id,
-            `${card.name} (${card.set}/${card.collector_number})`,
+            `${name} (${card.set}/${card.collector_number})`,
           );
       }
-      if (card.oracle_id) illToOracle.set(face.illustration_id, card.oracle_id);
+      if (oracleId) illToOracle.set(face.illustration_id, oracleId);
     }
   }
 
