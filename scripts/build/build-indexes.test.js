@@ -74,6 +74,40 @@ describe("buildIndexes", () => {
     expect(result.artByIllustrationId.size).toBe(0);
   });
 
+  it("indexes reversible cards using oracle_id and name from each face", () => {
+    const artwork = [
+      {
+        // reversible_card layout: no top-level oracle_id, illustration_id, or name
+        set: "tst",
+        collector_number: "3",
+        scryfall_uri: "https://scryfall.com/card/tst/3/ghalta",
+        card_faces: [
+          {
+            oracle_id: "oid-rev",
+            name: "Ghalta, Primal Hunger",
+            illustration_id: "ill-rev-a",
+            image_uris: { art_crop: "https://img/rev-a-art.jpg", normal: "https://img/rev-a-normal.jpg" },
+          },
+          {
+            oracle_id: "oid-rev",
+            name: "Ghalta, Primal Hunger",
+            illustration_id: "ill-rev-b",
+            image_uris: { art_crop: "https://img/rev-b-art.jpg", normal: "https://img/rev-b-normal.jpg" },
+          },
+        ],
+      },
+    ];
+    const result = buildIndexes({ uniqueArtwork: artwork });
+    expect(result.cardByOracleId.get("oid-rev")).toEqual({
+      name: "Ghalta, Primal Hunger",
+      uri: "https://scryfall.com/card/tst/3/ghalta",
+    });
+    expect(result.illToOracle.get("ill-rev-a")).toBe("oid-rev");
+    expect(result.illToOracle.get("ill-rev-b")).toBe("oid-rev");
+    expect(result.artByIllustrationId.get("ill-rev-a")).toBe("https://img/rev-a-art.jpg");
+    expect(result.artByIllustrationId.get("ill-rev-b")).toBe("https://img/rev-b-art.jpg");
+  });
+
   it("indexes each face of a double-faced card by its own illustration_id", () => {
     const artwork = [
       {
