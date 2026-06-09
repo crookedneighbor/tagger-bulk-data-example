@@ -1,8 +1,11 @@
 # Building with Scryfall's Tagger Bulk Data
 
-Scryfall publishes daily bulk data files that give you access to the entire card database, and as of June 6, 2026, you can now download the entirety of the `art_tags` and `oracle_tags` from [Tagger](https://tagger.scryfall.com): a community-curated system for tagging every card and piece of artwork in Magic: The Gathering.
+Scryfall publishes daily bulk data files that give you access to the entire card database, and as of June 6, 2026, you can now download the entirety of the `art_tags` and `oracle_tags` from [Tagger](https://tagger.scryfall.com), a community-curated system for tagging the artwork and functional pieces of each Magic card.
 
-This post walks through how to use those files effectively, using a real example app — an MTG Bestiary that pairs art of animals in Magic: The Gathering with functional tags for actions those animals might take (e.g., "Flying Bird", "Biting Wolf", "Poisonous Snake"). All code shown here comes from [the example repo](https://github.com/scryfall/tagger-bulk-data-example), written in [Node.js](https://nodejs.org/), but the examples should be easy to translate to any programming language.
+This post walks through how to use those files effectively, using an example app — an MTG Bestiary that pairs art of animals in Magic: The Gathering with functional tags for actions those animals might take (e.g., "Flying Bird", "Biting Wolf", "Poisonous Snake").
+
+Each code snippet is written in [Node.js](https://nodejs.org/), but the examples should be easy to translate to any programming language. For a full example integration, check out [the example repo](https://github.com/crookedneighbor/tagger-bulk-data-example).
+
 
 ---
 
@@ -25,12 +28,13 @@ Each tag object looks like this:
   "child_ids": [
     "95f16169-8089-4335-a72c-59b907135915",
     "9b072500-572a-4020-96e0-8f295218bfde",
-    "fd028b80-6dd6-4d29-aa8c-fe3df36a4281"
+    "fd028b80-6dd6-4d29-aa8c-fe3df36a4281",
+    "... more uuids"
   ],
   "aliases": [],
   "taggings": [
     { "illustration_id": "b49982ea-23ee-4be8-b557-3642aae049ec", "weight": "median" },
-    { "illustration_id": "de922da6-3598-426a-937d-628d505243d3", "weight": "median" }
+    { "illustration_id": "19569345-8743-45b1-b7fd-f5543176f7c7", "weight": "weak", "annotation": "One of the heads"  }
   ]
 }
 ```
@@ -40,18 +44,22 @@ And an oracle tag:
 ```json
 {
   "object": "tag",
-  "id": "4a498561-a13c-4c55-ab24-28a2f6b99e85",
-  "label": "poisonous mechanics",
-  "slug": "poisonous-mechanics",
+  "id": "097bab20-06d1-4ac0-85e7-d5b9010ab7b8",
+  "label": "one-sided fight",
+  "slug": "one-sided-fight",
   "type": "oracle",
-  "uri": "https://tagger.scryfall.com/tags/card/poisonous-mechanics",
-  "description": "Cards with poisonous, infect, or wither.",
-  "parent_ids": ["..."],
-  "child_ids": [],
-  "aliases": ["poison", "infect-keywords"],
+  "uri": "https://tagger.scryfall.com/tags/card/one-sided-fight",
+  "description": "A creature deals damage equal to its power to another. Like Fight, but without the chance to fight back. See also fling which involves sacrificing the creature.",
+  "parent_ids": [
+    "... parent uuids"
+  ],
+  "child_ids": [
+    "... child uuids"
+  ],
+  "aliases": ["bite", "removal-bite"],
   "taggings": [
-    { "oracle_id": "2445e58b-87ed-4ab2-8209-a5e1f566fba7", "weight": "median" },
-    { "oracle_id": "d2c6502d-fefd-4c9f-9d7b-6dfcc43316e1", "weight": "median", "annotation": "Blightsteel Colossus" }
+    { "oracle_id": "c49362b1-99da-4e6b-b29e-2576f803e7e8", "weight": "very_strong" },
+    { "oracle_id": "866c24d2-cd66-4776-bb8b-86ba479614c8", "weight": "median"}
   ]
 }
 ```
@@ -60,7 +68,7 @@ And an oracle tag:
 
 ## Downloading the Data
 
-Scryfall's bulk data API has an index endpoint that lists all available files with their download URLs. Fetch the index first, then stream each file to disk.
+Scryfall's bulk data API has an endpoint that lists all available files with their download URLs. Since we need tag data as well as card data, we can request this endpoint, then stream each bulk data file to disk.
 
 ```js
 import { createWriteStream, mkdirSync, readFileSync } from "fs";
@@ -101,10 +109,10 @@ console.log("Done.");
 
 A few notes:
 - Always set a descriptive `User-Agent` header — it's required to use the Scryfall API.
-- Stream the downloads rather than loading them into memory all at once — these files are large (the default bulk data alone is over 500 MB combined).
-- The index response includes `download_uri` for each type; **don't hardcode** those URLs, as they change daily and point to fresh download locations.
+- Stream the downloads rather than loading them into memory all at once — these files are large (the default card bulk data alone is over 500 MB).
+- The index response includes `download_uri` for each type; **don't hardcode** those URLs for repeated use later, as they change daily and point to fresh download locations.
 
-After downloading, the files are plain JSON arrays. Load them with a standard JSON parse:
+The downloaded files are plain JSON arrays. Load them with a standard JSON parser:
 
 ```js
 const artTagsRaw = JSON.parse(readFileSync("data/art_tags.json"));
@@ -125,7 +133,12 @@ The Tagger data and the card data use two different IDs to identify cards:
 
 In this example app, the `unique_artwork` bulk data is the bridge. Each card entry has both IDs, so you can build lookup maps in a single pass.
 
-One wrinkle: for double-faced cards (transform, modal DFCs, reversible cards), `illustration_id` is absent at the top level — each face has its own. `oracle_id` and the Scryfall URL stay on the parent card, so you need to loop over faces when that's the case:
+Two wrinkles to watch for:
+
+- **Double-faced cards** (transform, modal DFCs): `illustration_id` is absent at the top level — each face has its own.
+- **Reversible cards**: both `illustration_id` *and* `oracle_id` are on each face rather than the top-level card.
+
+Looping over faces handles both cases:
 
 ```js
 const cardByOracleId = new Map();
@@ -133,7 +146,7 @@ const artByIllustrationId = new Map();
 const illToOracle = new Map();
 
 for (const card of uniqueArtwork) {
-  // oracle_id is always at the top level
+  // For most cards, oracle_id and name are at the top level.
   if (card.oracle_id && card.name) {
     cardByOracleId.set(card.oracle_id, {
       name: card.name,
@@ -142,14 +155,24 @@ for (const card of uniqueArtwork) {
   }
 
   // For single-faced cards, illustration_id and image_uris are at the top level.
-  // For double-faced cards, each face has its own illustration_id and image_uris.
+  // For double-faced and reversible cards, each face has its own.
   const faces = card.illustration_id ? [card] : (card.card_faces ?? []);
 
   for (const face of faces) {
     if (!face.illustration_id) continue;
+
+    // Reversible cards have oracle_id and name on each face rather than the top-level card.
+    if (!card.oracle_id && face.oracle_id && face.name) {
+      cardByOracleId.set(face.oracle_id, {
+        name: face.name,
+        uri: card.scryfall_uri,
+      });
+    }
+
+    const oracleId = card.oracle_id ?? face.oracle_id;
     const artCrop = face.image_uris?.art_crop;
     if (artCrop) artByIllustrationId.set(face.illustration_id, artCrop);
-    if (card.oracle_id) illToOracle.set(face.illustration_id, card.oracle_id);
+    if (oracleId) illToOracle.set(face.illustration_id, oracleId);
   }
 }
 ```
