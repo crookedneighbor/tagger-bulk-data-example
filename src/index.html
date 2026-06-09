@@ -88,13 +88,23 @@
         background: transparent;
         color: #e0e0e0;
         min-height: 100vh;
-        max-width: 960px;
         margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      main {
+        flex: 1;
+        max-width: 960px;
+        margin: auto;
+        min-height: 100vh;
       }
 
       header {
         border-bottom: 2px solid #4a3728;
         padding: 0.9rem 1.5rem;
+        max-width: 960px;
+        margin: auto;
       }
 
       header h1 {
@@ -401,6 +411,43 @@
       .empty .icon {
         font-size: 2.5rem;
       }
+
+      footer {
+        padding: 1.5rem;
+        background: #16213e;
+        border-top: 1px solid #2a2a4a;
+        font-size: 0.78rem;
+        color: #9a9a9a;
+        line-height: 1.6;
+      }
+
+      footer a {
+        color: #9a9a9a;
+      }
+
+      footer a:hover {
+        color: #d4a843;
+      }
+
+      footer p,
+      footer ul {
+        max-width: 960px;
+        margin: auto;
+      }
+
+      footer p + p {
+        margin-top: 0.5rem;
+      }
+
+      footer ul {
+        margin-bottom: 2rem;
+
+        li {
+          list-style: none;
+          flex-grow: 1;
+          text-align: center;
+        }
+      }
     </style>
   </head>
   <body>
@@ -443,6 +490,57 @@
         </div>
       </div>
     </main>
+    <footer>
+      <ul>
+        <li>
+          <a href="https://scryfall.com" target="_blank" rel="noopener"
+            >Scryfall</a
+          >
+        </li>
+        <li>
+          <a href="https://tagger.scryfall.com" target="_blank" rel="noopener"
+            >Tagger</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://scryfall.com/docs/api/bulk-data"
+            target="_blank"
+            rel="noopener"
+            >Bulk Data API Documentation</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://scryfall.com/docs/api/tags"
+            target="_blank"
+            rel="noopener"
+            >Tag Object Documentation</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://github.com/crookedneighbor/tagger-bulk-data-example"
+            target="_blank"
+            rel="noopener"
+            >Bestiary Source Code</a
+          >
+        </li>
+      </ul>
+      <p>
+        Portions of Scryfall are unofficial Fan Content permitted under the
+        <a
+          href="https://company.wizards.com/en/legal/fancontentpolicy"
+          target="_blank"
+          rel="noopener"
+          >Wizards of the Coast Fan Content Policy</a
+        >. The literal and graphical information presented on this site about
+        Magic: The Gathering, including card images and mana symbols, is
+        copyright Wizards of the Coast, LLC. Scryfall is not produced by or
+        endorsed by Wizards of the Coast.
+      </p>
+      <p>All other content &copy; 2026 Scryfall, LLC.</p>
+    </footer>
     <script type="module" src="js/app.js"></script>
   </body>
 </html>
