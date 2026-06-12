@@ -390,7 +390,7 @@ Some taggings include an `annotation` field — a short string that provides add
 
 ```json
 {
-  "id": "",
+  "id": "id-and-other-fields-for-tag-object-here",
   "taggings": [
     {
       "illustration_id": "bb743a92-62d2-46be-b03f-2e6974978611",
@@ -401,19 +401,17 @@ Some taggings include an `annotation` field — a short string that provides add
 }
 ```
 
-This is typically used when a card has a triggered ability that references a named card or mechanic. In this example, the card is tagged with "blood artist ability" because it has an effect identical to Blood Artist's trigger, and the annotation names the card whose ability it replicates.
-
-Annotations are most useful when you want to surface *why* a card is tagged, not just *that* it is. For example, you could display annotations as tooltips or footnotes in a card list, or use them to group cards that emulate the same named card.
+This is often used as clarifying information for why the card or art has the tag. Annotations are most useful when you want to surface *why* a card is tagged, not just *that* it is. For example, you could display annotations as tooltips or footnotes in a card list. But remember, annotations, like the tags themselves are all community-managed and not comprehensive.
 
 ---
 
 ## Tagger Data is Community-Managed
 
-Tagger is a community-curated dataset. Thousands of contributors tag cards, and the data is maintained through an ongoing collaborative effort. This is a strength — the coverage and detail are extraordinary — but it also means the data reflects community consensus rather than an authoritative editorial voice.
+Tagger is a community-curated dataset. Thousands of contributors tag cards, and the data is maintained through an ongoing collaborative effort. This community is passionate about the minutia of Magic: the Gathering and it's artowrk, but it also means the data reflects community consensus rather than a single authoritative voice, and that consensus shifts and changes over time.
 
 In practice this has a few implications:
 
-**Tags may not match your application's needs.** The animal tag hierarchy includes named characters (Ajani is a child of "cat"), abstract categories ("non-fantasy animal"), and transformation states ("undead animal"). These are valid tagging concerns for Tagger's purposes, but they don't make sense as selectable animals in a Bestiary. Build a blocklist by UUID:
+**Tags may not match your application's needs.** The animal tag hierarchy includes abstract categories (ex: "non-fantasy animal") that do not make sense as selectable animals in a Bestiary. Build a blocklist by UUID:
 
 ```js
 const OMIT_ANIMAL_IDS = new Set([
@@ -428,9 +426,9 @@ const OMIT_ANIMAL_IDS = new Set([
 if (OMIT_ANIMAL_IDS.has(childId)) continue;
 ```
 
-**Use UUIDs for blocklists and allowlists** for the same reason you use them everywhere else — the label might change, but the tag's identity won't. The fact that there's a UUID for "orca (animal) — covered by whale" reflects a real editorial decision that existed at a point in time.
+**Use UUIDs for blocklists and allowlists** for the same reason you use them everywhere else — the label might change, but the tag's identity won't. In the Bestiary example, we've blocked `orca (animal)`, because although it's a direct child of `animal`, it's also part of `whale` and we've chosen that to include both would be redundant.
 
-**Some edge cases need dataset-level filtering.** The Bestiary skips the `dbl` set entirely — the Double Feature set contains grayscale reprints of illustrations from other sets, and including them would produce duplicate results where the only difference between two entries is that one is black-and-white:
+**Some edge cases need dataset-level filtering.** The Bestiary skips the `dbl` set entirely — the Double Feature set contains grayscale reprints of illustrations from other sets, which presents in the Tagger data as unique illustrations. Including them would produce duplicate results where the only difference between two entries is that one is black-and-white:
 
 ```js
 const SKIP_SETS = new Set([
