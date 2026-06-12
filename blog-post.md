@@ -171,6 +171,7 @@ for (const card of uniqueArtwork) {
 
     const oracleId = card.oracle_id ?? face.oracle_id;
     const artCrop = face.image_uris?.art_crop;
+    // save the art crop url to use later
     if (artCrop) artByIllustrationId.set(face.illustration_id, artCrop);
     if (oracleId) illToOracle.set(face.illustration_id, oracleId);
   }
@@ -186,20 +187,20 @@ for (const tagging of wolfTag.taggings) {
 }
 
 // Oracle tag tagging → card name
-for (const tagging of poisonousTag.taggings) {
+for (const tagging of oneSidedFightTag.taggings) {
   const card = cardByOracleId.get(tagging.oracle_id);
 }
 ```
 
-The Bestiary app needs to do both at once — find art of wolves that appear on cards with poisonous mechanics. The `illToOracle` map makes that cross-reference possible:
+The Bestiary app needs to do both at once — find art of wolves that appear on cards with the one-sided fight oracle tag. The `illToOracle` map makes that cross-reference possible:
 
 ```js
 // For each wolf illustration, get the oracle ID of the card it appears on
 const oracleId = illToOracle.get(tagging.illustration_id);
 
-// Then check if that oracle ID appears in the poisonous mechanics tag
-if (allPoisonousOids.has(oracleId)) {
-  // This wolf illustration is on a poisonous card — include it in the results
+// Then check if that oracle ID appears in the one-sided fight tag
+if (allOneSidedFightTags.has(oracleId)) {
+  // This wolf illustration is on a one-sided fight card — include it in the results
 }
 ```
 
@@ -236,7 +237,13 @@ const EXPAND_ANIMAL_IDS = new Set([
 ]);
 ```
 
-If you're using a database, I imagine you never actually have to see the UUIDs, but if you are not using a database like this example app, then keeping a comment beside each UUID explaining what the label is today is a good idea — it makes the code readable while keeping the reference stable.
+If you're using a database, You never actually have to see the UUIDs, but for this example app, where we have no database, keeping a comment beside each UUID explaining what the uuid represents is a good idea — it makes the code readable while keeping the reference stable.
+
+### Important!
+
+Since the tags are community managed, it's entirely possible that they can change and break the assumptions you've coded into your application for how they work.
+
+For instance, this app has an assumption that the direct children of the `animal` tag are the animal names we want to surface. But as you can see, we already have to account for omitting some and expanding others. If the community decides to group all the mammals under a `mammal` tag, we'll have to add the `mammal` tag to the `EXPAND_ANIMAL_IDS` set, just like `reptile` and `amphibian`. If a new category of animal is added as a direct child of the `animal` tag, and that tag doesn't make sense for this app, we'll have to update our app to exclude it as well. 
 
 ---
 
@@ -249,21 +256,24 @@ For the Bestiary, "wolf" is a direct child of "animal". "Werewolf" might be a ch
 A simple breadth-first search collects the full subtree:
 
 ```js
-function collectChildTagIds(startIds, tagById) {
+// Build a map of tag ID → tag object for fast lookup
+const artTagById = new Map(artTagsRaw.map((tag) => [tag.id, tag]));
+
+function collectDescendantTagIds(startIds) {
   const result = new Set();
   const queue = [...startIds];
   while (queue.length) {
     const id = queue.shift();
     if (result.has(id)) continue;
     result.add(id);
-    const tag = tagById.get(id);
+    const tag = artTagById.get(id);
     if (tag) queue.push(...tag.child_ids);
   }
   return result;
 }
 
 // Collect all IDs in the wolf subtree (wolf, werewolf, wolf-pup, etc.)
-const wolfSubtreeIds = collectChildTagIds(["d624c569-...wolf-id"], artTagById);
+const wolfSubtreeIds = collectDescendantTagIds(["d624c569-...wolf-id"]);
 
 // Then gather every illustration ID across the entire subtree
 const illustrations = new Set();
@@ -292,7 +302,7 @@ for (const childId of animalRoot.child_ids) {
 }
 ```
 
-For oracle tags, the same approach works in the opposite direction — you may want to roll *up* a family of related mechanic tags under one action label. The "fighting" action in the Bestiary maps to five different oracle tags (`removal-fight`, `old fight`, `mass fight`, `buttfight`, `mutiny`) that all describe creatures fighting:
+For oracle tags, the same approach works in the opposite direction — you may want to roll *up* a family of related mechanic tags under one action label. The "fighting" action in the Bestiary maps to five different oracle tags (`removal-fight`, `old fight`, `mass fight`, `buttfight`, `mutiny`) that all describe creatures fighting (we omit `one-sided fight` and put that under `biting` since `bite` is a nickname for `one-sided fight`):
 
 ```js
 {
@@ -325,7 +335,7 @@ Tags can have a `description` and a list of `aliases`. Both are useful for build
 }
 ```
 
-**Descriptions** are free-form text that explain what the tag means. They're great for tooltips or help text in your UI — especially for tags whose labels are abbreviated or jargon-heavy.
+**Descriptions** are free-form text that explain what the tag means. They're great for tooltips or help text in your UI — especially for tags whose labels are abbreviated or jargon-heavy. Some tag descriptions include markdown-style links to other Tagger pages, so if you plan to render the descriptions in your app, keep that in mind.
 
 **Aliases** are alternative labels that the community has associated with a tag. When implementing a search system, index aliases alongside the primary label:
 
@@ -340,7 +350,7 @@ for (const tag of oracleTagsRaw) {
 }
 ```
 
-This way a user searching for "poison" or "infect-keywords" both resolve to the same canonical tag.
+This way a user searching for "one-sided fight" or "bite" both resolve to the same canonical tag.
 
 ---
 
@@ -350,14 +360,14 @@ Every art tagging has a `weight` field, the values are:
 
 | Weight | Meaning |
 |---|---|
-| `very_strong` | The subject is the unmistakable focus of the art |
-| `strong` | The subject is prominent |
+| `very_strong` | The subject is exemplary for this particular tag |
+| `strong` | The subject is very prominent |
 | `median` | The subject is clearly present |
 | `weak` | The subject is present but not the focus |
 
 For oracle tags, you'll see only `median`, `strong`, and `very_strong`.
 
-Weight is the primary quality signal in the data. For the Bestiary, we skip `weak` taggings entirely:
+If no weight is applied at all by the community, then the default weight of `median` is applied. Weight is a quality signal in the data. For the Bestiary, we skip `weak` taggings entirely:
 
 ```js
 for (const tagging of t.taggings) {
@@ -370,20 +380,23 @@ for (const tagging of t.taggings) {
 
 Without this filter, a card where a wolf appears as a tiny detail in the background would show up alongside cards where a wolf is the entire subject.
 
-What threshold makes sense depends on your use case. If you're building a search feature where recall matters more than precision, you might include `weak`. For a curated visual experience, `median` or above is a reasonable default.
-
+It is entirely up to you which weights you want to support in your application.
 
 ---
 
 ## Tagging Annotations
 
-Some oracle tag taggings include an `annotation` field — a short string that provides additional context about why a specific card has that tag.
+Some taggings include an `annotation` field — a short string that provides additional context about why a specific card has that tag.
 
 ```json
 {
-  "oracle_id": "d2c6502d-fefd-4c9f-9d7b-6dfcc43316e1",
-  "weight": "median",
-  "annotation": "Blood Artist"
+  "taggings": [
+    {
+      "illustration_id": "bb743a92-62d2-46be-b03f-2e6974978611",
+      "weight": "weak",
+      "annotation": "In the bottom right at Ajani's foot."
+    }
+  ]
 }
 ```
 
