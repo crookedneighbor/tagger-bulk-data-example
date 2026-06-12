@@ -4,6 +4,8 @@ A small example app that demonstrates how to use the [Scryfall](https://scryfall
 
 The app is an MTG Bestiary: pick an animal and an action, and browse Magic card art featuring that animal doing that thing (e.g. "Eating Wolf", "Flying Bird", "Poisonous Snake").
 
+TODO - LINK TO BLOG POST ABOUT THIS REPO HERE
+
 ## How it works
 
 Scryfall publishes several [bulk data files](https://scryfall.com/docs/api/bulk-data) updated daily. This project uses three of them:
