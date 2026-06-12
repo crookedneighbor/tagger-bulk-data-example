@@ -66,4 +66,4 @@ It is intentionally contrived. It is an example app that uses both art tags and 
 
 [Unlicense](https://unlicense.org) — public domain.
 
-Card images and tag data are provided by [Scryfall](https://scryfall.com) under their own terms.
+Card images and tag data are provided by [Scryfall](https://scryfall.com).
