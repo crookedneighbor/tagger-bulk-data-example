@@ -390,6 +390,7 @@ Some taggings include an `annotation` field — a short string that provides add
 
 ```json
 {
+  "id": "",
   "taggings": [
     {
       "illustration_id": "bb743a92-62d2-46be-b03f-2e6974978611",
@@ -442,34 +443,6 @@ for (const card of uniqueArtwork) {
 }
 ```
 
----
+## Your Turn
 
-## Putting It Together
-
-Here's the end-to-end flow for building the Bestiary from bulk data:
-
-1. **Download** `unique_artwork`, `art_tags`, and `oracle_tags` from the Scryfall bulk data API.
-2. **Build indexes** from `unique_artwork` — maps keyed by `illustration_id` and `oracle_id` for fast lookup, plus a bridge map from `illustration_id` to `oracle_id`.
-3. **Resolve art tags** — for each animal tag, collect its full descendant subtree via breadth-first search, gather all illustration IDs across that subtree (skipping `weak` weight), and resolve each illustration ID to art URLs via the indexes.
-4. **Resolve oracle tags** — for each action group, collect oracle IDs from the relevant mechanic tags and their descendants.
-5. **Cross-reference** — for each animal, check whether any of its illustrations appear on cards whose oracle IDs are in any action group. Keep only animals that have at least one matching action.
-6. **Write out** a pre-computed JSON payload that the UI can load at runtime.
-
-The data is refreshed once a day in CI, so the app always reflects the latest Tagger contributions without any server-side rendering or database queries.
-
----
-
-## Wrapping Up
-
-Scryfall's Tagger bulk data is one of the richest community-built datasets in Magic: The Gathering tooling. The key things to keep in mind when building with it:
-
-- **Use the bulk data API index** to discover download URLs rather than hardcoding them.
-- **Build lookup maps from `unique_artwork`** to bridge `illustration_id` (art tags) and `oracle_id` (oracle tags).
-- **Always reference tags by UUID**, not by label — labels are mutable, UUIDs are stable.
-- **Traverse the tag hierarchy** with breadth-first search to collect subtrees; use subtree expansion or collapsing to match your UI's granularity.
-- **Check `description` and `aliases`** to build better search and to understand what a tag actually represents.
-- **Filter by `weight`** to control the quality threshold for your use case; skipping `weak` taggings is a good starting point.
-- **Use `annotation`** when you want to explain *why* a card has a given tag, not just that it does.
-- **Build a UUID-based blocklist** for tags that don't fit your application — community-managed data is comprehensive, not curated for your specific product.
-
-The [example repo](https://github.com/scryfall/tagger-bulk-data-example) has the full implementation including tests, so it's a useful reference for any of the patterns above.
+Our demo application is simple and contrived. We want to see what you're building with the Tagger data! Give us a shout on [Bluesky](https://bsky.app/profile/scryfall.com) and let us see what you are working on.
